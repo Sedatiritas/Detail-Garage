@@ -29,12 +29,30 @@ router.post("/login", async (req, res) => {
             });
         }
 
-        req.session.adminId = admin._id;
+        // Başarılı girişten sonra oturum kimliğini yenile.
+        req.session.regenerate((error) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({
+                    success: false,
+                    message: "Oturum oluşturulurken bir hata oluştu."
+                });
+            }
 
-        res.json({
-            success: true
+            req.session.adminId = admin._id;
+
+            req.session.save((saveError) => {
+                if (saveError) {
+                    console.error(saveError);
+                    return res.status(500).json({
+                        success: false,
+                        message: "Oturum kaydedilirken bir hata oluştu."
+                    });
+                }
+
+                return res.json({ success: true });
+            });
         });
-
     } catch (error) {
         console.error(error);
 
@@ -46,8 +64,17 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/logout", (req, res) => {
-    req.session.destroy(() => {
-        res.json({ success: true });
+    req.session.destroy((error) => {
+        if (error) {
+            console.error(error);
+            return res.status(500).json({
+                success: false,
+                message: "Çıkış sırasında bir hata oluştu."
+            });
+        }
+
+        res.clearCookie("connect.sid");
+        return res.json({ success: true });
     });
 });
 
