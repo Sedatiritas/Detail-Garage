@@ -40,18 +40,25 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+const sessionSecret = process.env.SESSION_SECRET;
+
+if (!sessionSecret) {
+    throw new Error("SESSION_SECRET .env dosyasında tanımlanmalıdır.");
+}
+
+if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+}
+
 app.use(
     session({
-        secret:
-            process.env.SESSION_SECRET ||
-            "detail-garage-secret",
-
+        secret: sessionSecret,
         resave: false,
-
         saveUninitialized: false,
-
         cookie: {
             httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
             maxAge: 1000 * 60 * 60 * 8
         }
     })
