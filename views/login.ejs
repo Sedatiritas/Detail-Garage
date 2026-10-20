@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Detail Garage yönetici giriş ekranı">
+  <title>Detail Garage | Yönetici Girişi</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link
+    rel="icon"
+    href="/logo.png?v=2">
+</head>
+<body class="login-page">
+
+  <main class="login-wrapper">
+    <div class="login-card">
+
+      <a href="/" class="login-brand">
+        <span class="brand-mark"><i class="bi bi-droplet-fill"></i></span>
+        <span>DO WAX <span class="brand-accent">GARAGE</span></span>
+      </a>
+
+      <div class="login-heading">
+        <span class="login-kicker">YÖNETİCİ PANELİ</span>
+        <h1>Hoş geldin.</h1>
+        <p>Yönetim paneline devam etmek için giriş yap.</p>
+      </div>
+
+      <form id="loginForm" class="login-form">
+        <div class="mb-3">
+          <label for="email" class="form-label">E-posta</label>
+          <div class="login-input">
+            <i class="bi bi-envelope"></i>
+            <input
+              type="text"
+              id="email"
+              name="email"
+              class="form-control"
+              autocomplete="username"
+              placeholder="Kullanıcı Adınız"
+              required
+            >
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">Şifre</label>
+          <div class="login-input">
+            <i class="bi bi-lock"></i>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-control"
+              placeholder="●●●●●"
+              autocomplete="current-password"
+              required
+            >
+          </div>
+        </div>
+
+
+        <button type="submit" class="btn login-submit w-100 rounded-pill py-3">
+          Giriş Yap <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+
+        <div class="login-message" id="loginMessage"></div>
+      </form>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,2729 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Detail Garage yönetim paneli">
+    <title>DO WAX YÖNETİM PANELİ</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link
+    rel="icon"
+    href="/logo.png?v=2">
+</head>
+
+<body class="admin-page">
+
+    <!-- MOBİL SIDEBAR OVERLAY -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <a href="#" class="brand-link">
+                <span class="brand-mark"><i class="bi bi-droplet-fill"></i></span>
+                <span>DO WAX <span class="brand-accent">GARAGE</span></span>
+            </a>
+            <button class="sidebar-close d-lg-none" id="sidebarClose" aria-label="Menüyü kapat">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="panel-label">YÖNETİM</div>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item active" href="#dashboard">
+                <i class="bi bi-grid-1x2-fill"></i>
+                <span>Dashboard</span>
+            </a>
+            <a class="nav-item" href="#slider">
+                <i class="bi bi-images"></i>
+                <span>Ana Sayfa Slider</span>
+            </a>
+            <a class="nav-item" href="#about">
+                <i class="bi bi-info-circle-fill"></i>
+                <span>Hakkımızda</span>
+            </a>
+            <a class="nav-item" href="#appointments">
+                <i class="bi bi-calendar-check-fill"></i>
+                <span>Randevular</span>
+            </a>
+            <a class="nav-item" href="#services">
+                <i class="bi bi-stars"></i>
+                <span>Hizmetler</span>
+            </a>
+            <a class="nav-item" href="#gallery">
+                <i class="bi bi-images"></i>
+                <span>Galeri</span>
+            </a>
+            <a class="nav-item" href="#settings">
+                <i class="bi bi-gear-fill"></i>
+                <span>İşletme Ayarları</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <a href="/" class="site-link" target="_blank">
+                <i class="bi bi-box-arrow-up-right"></i>
+                Siteyi Görüntüle
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-wrapper">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="mobile-menu-btn d-lg-none" id="sidebarOpen" aria-label="Menüyü aç">
+                    <i class="bi bi-list"></i>
+                </button>
+
+                <div>
+                    <div class="topbar-kicker">YÖNETİM PANELİ</div>
+                    <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                </div>
+            </div>
+
+            <div class="topbar-actions">
+                <button
+    class="icon-btn position-relative"
+    id="notificationPermissionBtn"
+    type="button"
+    title="Bildirimleri Aç"
+    aria-label="Bildirimleri Aç"
+>
+    <i class="bi bi-bell"></i>
+    <span
+        class="notification-dot"
+        id="notificationStatusDot"
+    ></span>
+</button>
+
+                <div class="dropdown">
+                    <button class="admin-profile admin-profile-btn" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <div class="avatar">DG</div>
+                        <div class="d-none d-sm-block text-start">
+                            <strong>Detail Garage</strong>
+                            <small>Yönetici</small>
+                        </div>
+                        <i class="bi bi-chevron-down small"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end admin-dropdown shadow-sm">
+                        <li><button class="dropdown-item logout-item" type="button" id="logoutBtn">
+                                <i class="bi bi-box-arrow-right me-2"></i>Çıkış Yap
+                            </button></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <main class="content-area">
+
+            <!-- DASHBOARD -->
+            <section id="dashboard" class="panel-section active-section">
+
+                <%
+    // Bugünün tarihi
+    const today = new Date().toLocaleDateString("sv-SE", {
+        timeZone: "Europe/Istanbul"
+    });
+
+    const currentMonth = today.slice(0, 7);
+
+    // Bugünkü randevular
+    const todayAppointments = appointments.filter(
+        appointment => appointment.date === today
+    );
+
+    // Bekleyen randevular
+    const pendingAppointments = appointments.filter(
+        appointment => appointment.status === "pending"
+    );
+
+    // Bu ay tamamlanan     mler
+    const monthlyCompleted = appointments.filter(
+        appointment =>
+            appointment.date.startsWith(currentMonth) &&
+            appointment.status === "completed"
+    );
+
+    // Bugünkü hizmet dağılımı
+    const serviceCounts = {};
+
+    todayAppointments.forEach(appointment => {
+        serviceCounts[appointment.service] =
+            (serviceCounts[appointment.service] || 0) + 1;
+    });
+
+    const serviceList = [
+        "Profesyonel Oto Yıkama",
+        "Pasta Cila",
+        "İç Detailing",
+        "Seramik & Koruma"
+    ];
+
+    const serviceIcons = {
+        "Profesyonel Oto Yıkama": "bi-droplet-half",
+        "Pasta Cila": "bi-brightness-high",
+        "İç Detailing": "bi-stars",
+        "Seramik & Koruma": "bi-shield-check"
+    };
+
+    const maxServiceCount = Math.max(
+        ...serviceList.map(
+            service => serviceCounts[service] || 0
+        ),
+        1
+    );
+
+    // Son 4 randevu
+    const recentAppointments = appointments.slice(0, 4);
+
+    // Türkçe tarih
+    const formattedToday = new Date(
+        `${today}T00:00:00`
+    ).toLocaleDateString("tr-TR", {
+        day: "numeric",
+        month: "long",
+        timeZone: "Europe/Istanbul"
+    });
+%>
+
+
+                    <!-- İSTATİSTİKLER -->
+                    <div class="row g-4 mb-4">
+
+                        <!-- BUGÜNKÜ RANDEVU -->
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="stat-card">
+
+                                <div class="stat-icon icon-lime">
+                                    <i class="bi bi-calendar2-check"></i>
+                                </div>
+
+                                <div class="stat-meta">
+
+                                    <span>Bugünkü Randevu</span>
+
+                                    <strong>
+                                        <%= todayAppointments.length %>
+                                    </strong>
+
+                                    <small>
+                                        Bugün için planlanan randevu
+                                    </small>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <!-- BEKLEYEN -->
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="stat-card">
+
+                                <div class="stat-icon icon-blue">
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+
+                                <div class="stat-meta">
+
+                                    <span>Bekleyen</span>
+
+                                    <strong>
+                                        <%= pendingAppointments.length %>
+                                    </strong>
+
+                                    <small>
+                                        Onay bekleyen randevu
+                                    </small>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <!-- BU AY TAMAMLANAN -->
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="stat-card">
+
+                                <div class="stat-icon icon-purple">
+                                    <i class="bi bi-car-front-fill"></i>
+                                </div>
+
+                                <div class="stat-meta">
+
+                                    <span>Bu Ay İşlem</span>
+
+                                    <strong>
+                                        <%= monthlyCompleted.length %>
+                                    </strong>
+
+                                    <small>
+                                        Bu ay tamamlanan işlem
+                                    </small>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- BUGÜNKÜ ZİYARET -->
+<div class="col-12 col-sm-6 col-xl-3">
+
+    <div class="stat-card">
+
+        <div class="stat-icon icon-orange">
+            <i class="bi bi-people-fill"></i>
+        </div>
+
+        <div class="stat-meta">
+
+            <span>Bugünkü Ziyaret</span>
+
+            <strong>
+                <%= todayVisitors %>
+            </strong>
+
+            <small>
+                Bugün siteyi ziyaret edenler
+            </small>
+
+        </div>
+
+    </div>
+
+</div>
+                        
+
+                    </div>
+
+
+                    <!-- ALT KISIM -->
+                    <div class="row g-4">
+
+
+                        <!-- SON RANDEVULAR -->
+                        <div class="col-xl-8">
+
+                            <div class="panel-card h-100">
+
+                                <div class="panel-header">
+
+                                    <div>
+
+                                        <span class="section-mini-title">
+                                            RANDEVU AKIŞI
+                                        </span>
+
+                                        <h2>
+                                            Son randevular
+                                        </h2>
+
+                                    </div>
+
+                                    <a href="#appointments" class="panel-link">
+                                        Tümünü gör
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
+
+                                </div>
+
+
+                                <div class="table-responsive">
+
+                                    <table class="table align-middle data-table mb-0">
+
+                                        <thead>
+
+                                            <tr>
+                                                <th>Müşteri</th>
+                                                <th>Araç</th>
+                                                <th>Hizmet</th>
+                                                <th>Tarih</th>
+                                                <th>Durum</th>
+                                            </tr>
+
+                                        </thead>
+
+
+                                        <tbody>
+
+                                            <% if (recentAppointments.length===0) { %>
+
+                                                <tr>
+
+                                                    <td colspan="5" class="text-center py-5 text-secondary">
+                                                        Henüz randevu bulunmuyor.
+                                                    </td>
+
+                                                </tr>
+
+                                                <% } else { %>
+
+
+                                                    <% recentAppointments.forEach(appointment=> { %>
+
+                                                        <tr>
+
+                                                            <!-- MÜŞTERİ -->
+                                                            <td>
+
+                                                                <strong>
+                                                                    <%= appointment.name %>
+                                                                </strong>
+
+                                                                <span class="sub-text">
+                                                                    <%= appointment.phone %>
+                                                                </span>
+
+                                                            </td>
+
+
+                                                            <!-- ARAÇ -->
+                                                            <td>
+                                                                <%= appointment.vehicle %>
+                                                            </td>
+
+
+                                                            <!-- HİZMET -->
+                                                            <td>
+                                                                <%= appointment.service %>
+                                                            </td>
+
+
+                                                            <!-- TARİH -->
+                                                            <td>
+
+                                                                <%= new Date( `${appointment.date}T00:00:00`
+                                                                    ).toLocaleDateString("tr-TR", { day: "2-digit" ,
+                                                                    month: "short" , timeZone: "Europe/Istanbul" }) %>
+
+                                                                    ·
+
+                                                                    <%= appointment.time %>
+
+                                                            </td>
+
+
+                                                            <!-- DURUM -->
+                                                            <td>
+
+                                                                <% if (appointment.status==="pending" ) { %>
+
+                                                                    <span class="badge-soft badge-warning">
+                                                                        Bekliyor
+                                                                    </span>
+
+                                                                    <% } else if (appointment.status==="confirmed" ) {
+                                                                        %>
+
+                                                                        <span class="badge-soft badge-success">
+                                                                            Onaylandı
+                                                                        </span>
+
+                                                                        <% } else if (appointment.status==="rejected" )
+                                                                            { %>
+
+                                                                            <span class="badge-soft badge-danger">
+                                                                                Reddedildi
+                                                                            </span>
+
+                                                                            <% } else if
+                                                                                (appointment.status==="completed" ) { %>
+
+                                                                                <span class="badge-soft badge-success">
+                                                                                    Tamamlandı
+                                                                                </span>
+
+                                                                                <% } %>
+
+                                                            </td>
+
+                                                        </tr>
+
+                                                        <% }) %>
+
+                                                            <% } %>
+
+                                        </tbody>
+
+                                    </table>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- BUGÜNÜN İŞLEM ÖZETİ -->
+                        <div class="col-xl-4">
+
+                            <div class="panel-card h-100">
+
+                                <div class="panel-header">
+
+                                    <div>
+
+                                        <span class="section-mini-title">
+                                            BUGÜN
+                                        </span>
+
+                                        <h2>
+                                            İşlem özeti
+                                        </h2>
+
+                                    </div>
+
+                                    <span class="date-chip">
+                                        <%= formattedToday %>
+                                    </span>
+
+                                </div>
+
+
+                                <div class="progress-list">
+
+
+                                    <% if (todayAppointments.length===0) { %>
+
+                                        <div class="text-center py-4 text-secondary small">
+                                            Bugün için henüz randevu yok.
+                                        </div>
+
+                                        <% } else { %>
+
+
+                                            <% serviceList.forEach(service=> { %>
+
+                                                <% const count=serviceCounts[service] || 0; const percentage=Math.round(
+                                                    (count / maxServiceCount) * 100 ); %>
+
+
+                                                    <div class="progress-item">
+
+                                                        <div class="d-flex justify-content-between mb-2">
+
+                                                            <span>
+                                                                <%= service %>
+                                                            </span>
+
+                                                            <strong>
+                                                                <%= count %> araç
+                                                            </strong>
+
+                                                        </div>
+
+                                                        <div class="progress-track">
+
+                                                            <span style="<%= `width: ${percentage}%;` %>"></span>
+
+                                                        </div>
+
+                                                    </div>
+
+
+                                                    <% }) %>
+
+
+                                                        <% } %>
+
+                                </div>
+
+
+                                <!-- GÜNLÜK DURUM -->
+                                <div class="daily-note mt-4">
+
+                                    <i class="bi bi-calendar-check-fill"></i>
+
+                                    <div>
+
+                                        <strong>
+                                            Bugünün planı
+                                        </strong>
+
+                                        <span>
+                                            Toplam
+                                            <%= todayAppointments.length %>
+                                                randevu bulunuyor.
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+            </section>
+
+    
+
+
+            <!-- APPOINTMENTS -->
+            <section id="appointments" class="panel-section">
+
+                <!-- BAŞLIK -->
+                <div class="section-toolbar">
+
+                    <div>
+                        <span class="section-mini-title">
+                            RANDEVU YÖNETİMİ
+                        </span>
+
+                        <h2>
+                            Randevular
+                        </h2>
+                    </div>
+
+                    <button class="btn btn-lime rounded-pill px-4" data-bs-toggle="modal"
+                        data-bs-target="#appointmentModal">
+                        <i class="bi bi-plus-lg me-1"></i>
+                        Yeni Randevu
+                    </button>
+
+                </div>
+
+
+                <!-- FİLTRELER -->
+                <div class="filter-card panel-card mb-4">
+
+                    <div class="row g-3 align-items-end">
+
+                        <!-- ARAMA -->
+                        <div class="col-md-5">
+
+                            <label class="form-label">
+                                Ara
+                            </label>
+
+                            <div class="input-icon">
+
+                                <i class="bi bi-search"></i>
+
+                                <input type="text" id="appointmentSearch" class="form-control"
+                                    placeholder="Müşteri, telefon veya araç...">
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DURUM -->
+                        <div class="col-md-3">
+
+                            <label class="form-label">
+                                Durum
+                            </label>
+
+                            <select id="appointmentStatusFilter" class="form-select">
+
+                                <option value="">
+                                    Tüm durumlar
+                                </option>
+
+                                <option value="pending">
+                                    Bekliyor
+                                </option>
+
+                                <option value="confirmed">
+                                    Onaylandı
+                                </option>
+
+                                <option value="completed">
+                                    Tamamlandı
+                                </option>
+
+                                <option value="rejected">
+                                    Reddedildi
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- TARİH -->
+                        <div class="col-md-3">
+
+                            <label class="form-label">
+                                Tarih
+                            </label>
+
+                            <input type="date" id="appointmentDateFilter" class="form-control">
+
+                        </div>
+
+
+                        <!-- TEMİZLE -->
+                        <div class="col-md-1">
+
+                            <button type="button" id="appointmentFilterReset" class="filter-reset w-100"
+                                title="Filtreleri temizle">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+               <!-- RANDEVU TABLOSU -->
+<div class="panel-card">
+
+    <div class="table-responsive">
+
+        <table class="table align-middle data-table mb-0">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Müşteri
+                    </th>
+
+                    <th>
+                        Araç
+                    </th>
+
+                    <th>
+                        Hizmet
+                    </th>
+
+                    <th>
+                        Tarih
+                    </th>
+
+                    <th>
+                        Not
+                    </th>
+
+                    <th>
+                        Durum
+                    </th>
+
+                    <th class="text-end">
+                        İşlem
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                <% if (appointments.length === 0) { %>
+
+                    <tr>
+
+                        <td
+                            colspan="7"
+                            class="text-center py-5 text-secondary"
+                        >
+
+                            <i
+                                class="bi bi-calendar-x d-block fs-3 mb-2"
+                            ></i>
+
+                            Henüz randevu bulunmuyor.
+
+                        </td>
+
+                    </tr>
+
+                <% } else { %>
+
+
+                    <% appointments.forEach(appointment => { %>
+
+                        <tr
+                            data-appointment-id="<%= appointment._id %>"
+                            data-status="<%= appointment.status %>"
+                            data-date="<%= appointment.date %>"
+                        >
+
+                            <!-- MÜŞTERİ -->
+                            <td>
+
+                                <strong>
+                                    <%= appointment.name %>
+                                </strong>
+
+                                <span class="sub-text">
+                                    <%= appointment.phone %>
+                                </span>
+
+                            </td>
+
+
+                            <!-- ARAÇ -->
+                            <td>
+
+                                <%= appointment.vehicle %>
+
+                            </td>
+
+
+                            <!-- HİZMET -->
+                            <td>
+
+                                <%= appointment.service %>
+
+                            </td>
+
+
+                            <!-- TARİH -->
+                            <td>
+
+                                <%= new Date(
+                                    `${appointment.date}T00:00:00`
+                                ).toLocaleDateString(
+                                    "tr-TR",
+                                    {
+                                        day: "2-digit",
+                                        month: "short"
+                                    }
+                                ) %>
+
+                                ·
+
+                                <%= appointment.time %>
+
+                            </td>
+
+
+                            <!-- NOT -->
+                            <td>
+
+                                <%= appointment.message || "—" %>
+
+                            </td>
+
+
+                            <!-- DURUM -->
+                            <td>
+
+                                <% if (appointment.status === "pending") { %>
+
+                                    <span class="badge-soft badge-warning">
+                                        Bekliyor
+                                    </span>
+
+                                <% } %>
+
+
+                                <% if (appointment.status === "confirmed") { %>
+
+                                    <span class="badge-soft badge-success">
+                                        Onaylandı
+                                    </span>
+
+                                <% } %>
+
+
+                                <% if (appointment.status === "rejected") { %>
+
+                                    <span class="badge-soft badge-danger">
+                                        Reddedildi
+                                    </span>
+
+                                <% } %>
+
+
+                                <% if (appointment.status === "completed") { %>
+
+                                    <span class="badge-soft badge-success">
+                                        Tamamlandı
+                                    </span>
+
+                                <% } %>
+
+                            </td>
+
+
+                            <!-- İŞLEMLER -->
+                            <td class="text-end">
+
+                                <div class="d-inline-flex align-items-center gap-2">
+
+                                    <!-- 3 NOKTA -->
+                                    <div class="dropdown">
+
+                                        <button
+                                            class="table-action"
+                                            type="button"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"
+                                            title="İşlemler"
+                                        >
+                                            <i class="bi bi-three-dots"></i>
+                                        </button>
+
+
+                                        <ul
+                                            class="dropdown-menu dropdown-menu-end appointment-menu shadow-sm"
+                                        >
+
+                                            <!-- ONAYLA -->
+                                            <li>
+
+                                                <button
+                                                    type="button"
+                                                    class="dropdown-item appointment-action"
+                                                    data-action="confirmed"
+                                                    data-id="<%= appointment._id %>"
+                                                >
+
+                                                    <i
+                                                        class="bi bi-check2-circle text-success me-2"
+                                                    ></i>
+
+                                                    Onayla
+
+                                                </button>
+
+                                            </li>
+
+
+                                            <!-- REDDET -->
+                                            <li>
+
+                                                <button
+                                                    type="button"
+                                                    class="dropdown-item appointment-action"
+                                                    data-action="rejected"
+                                                    data-id="<%= appointment._id %>"
+                                                >
+
+                                                    <i
+                                                        class="bi bi-x-circle text-danger me-2"
+                                                    ></i>
+
+                                                    Reddet
+
+                                                </button>
+
+                                            </li>
+
+
+                                            <!-- TAMAMLANDI -->
+                                            <li>
+
+                                                <button
+                                                    type="button"
+                                                    class="dropdown-item appointment-action"
+                                                    data-action="completed"
+                                                    data-id="<%= appointment._id %>"
+                                                >
+
+                                                    <i
+                                                        class="bi bi-check-lg me-2"
+                                                    ></i>
+
+                                                    Tamamlandı
+
+                                                </button>
+
+                                            </li>
+
+                                        </ul>
+
+                                    </div>
+
+
+                                    <!-- SİL BUTONU -->
+                                    <button
+                                        type="button"
+                                        class="table-action text-danger appointment-delete-btn"
+                                        data-id="<%= appointment._id %>"
+                                        title="Randevuyu sil"
+                                        aria-label="Randevuyu sil"
+                                    >
+
+                                        <i class="bi bi-trash"></i>
+
+                                    </button>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    <% }) %>
+
+                <% } %>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+            </section>
+
+            <!-- SERVICES -->
+            <section id="services" class="panel-section">
+
+                <div class="section-toolbar">
+                    <div>
+                        <span class="section-mini-title">İÇERİK YÖNETİMİ</span>
+                        <h2>Hizmetler</h2>
+                    </div>
+
+                    <button class="btn btn-lime rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#serviceModal"
+                        data-mode="add">
+                        <i class="bi bi-plus-lg me-1"></i>
+                        Hizmet Ekle
+                    </button>
+                </div>
+
+
+                <div class="row g-4">
+
+                    <% if (services.length===0) { %>
+
+                        <div class="col-12">
+                            <div class="panel-card text-center py-5">
+                                <i class="bi bi-stars fs-1 text-secondary d-block mb-3"></i>
+
+                                <h3 class="h5">Henüz hizmet eklenmemiş</h3>
+
+                                <p class="text-secondary mb-0">
+                                    İlk hizmetinizi eklemek için "Hizmet Ekle" butonunu kullanın.
+                                </p>
+                            </div>
+                        </div>
+
+                        <% } else { %>
+
+                            <% services.forEach((service, index)=> { %>
+
+                                <div class="col-md-6 col-xl-3">
+
+                                    <div class="service-admin-card" data-service-id="<%= service._id %>">
+
+                                        <div class="service-admin-top">
+
+                                            <div class="service-admin-icon">
+                                                <i class="bi <%= service.icon || 'bi-stars' %>"></i>
+                                            </div>
+
+                                            <span
+                                                class="status-pill <%= service.status === 'active' ? 'active' : '' %>">
+                                                <%= service.status==="active" ? "Yayında" : "Pasif" %>
+                                            </span>
+
+                                        </div>
+
+
+                                        <span class="service-no">
+                                            <%= String(index + 1).padStart(2, "0" ) %>
+                                        </span>
+
+
+                                        <h3>
+                                            <%= service.name %>
+                                        </h3>
+
+
+                                        <p>
+                                            <%= service.description %>
+                                        </p>
+
+
+                                        <div class="service-admin-bottom">
+
+                                            <strong>
+                                                ₺<%= service.price.toLocaleString("tr-TR") %>
+                                            </strong>
+
+                                            <button class="table-action edit-service-btn" type="button"
+                                                data-bs-toggle="modal" data-bs-target="#serviceModal" data-mode="edit"
+                                                data-id="<%= service._id %>">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <% }) %>
+
+                                    <% } %>
+
+                </div>
+
+            </section>
+
+            <!-- GALLERY -->
+            <section id="gallery" class="panel-section">
+
+                <div class="section-toolbar">
+
+                    <div>
+
+                        <span class="section-mini-title">
+                            İÇERİK YÖNETİMİ
+                        </span>
+
+                        <h2>Galeri</h2>
+
+                    </div>
+
+                    <span class="text-secondary small" id="galleryCount">
+
+                        <%= galleries.length %> / 8 fotoğraf
+
+                    </span>
+
+                </div>
+
+
+                <!-- GALERİ AYARLARI -->
+
+                <div class="panel-card mb-4">
+
+                    <div class="panel-header mb-4">
+
+                        <div>
+
+                            <span class="section-mini-title">
+                                GALERİ AYARLARI
+                            </span>
+
+                            <h2>
+                                Başlık ve açıklama
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <form id="gallerySettingsForm">
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Galeri başlığı
+                            </label>
+
+                            <input type="text" id="galleryTitle" name="title" class="form-control"
+                                value="<%= gallerySettings.title %>" maxlength="100" required>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Galeri açıklaması
+                            </label>
+
+                            <textarea id="galleryDescription" name="description" class="form-control" rows="3"
+                                maxlength="250" required><%= gallerySettings.description %></textarea>
+
+                        </div>
+
+
+                        <button type="submit" class="btn btn-lime rounded-pill px-4">
+
+                            <i class="bi bi-check2 me-1"></i>
+
+                            Değişiklikleri kaydet
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+
+                <!-- FOTOĞRAF YÜKLEME -->
+
+                <div class="upload-box mb-4">
+
+                    <i class="bi bi-images"></i>
+
+                    <strong>
+                        Yeni görsel ekle
+                    </strong>
+
+                    <span>
+                        JPG, PNG veya WEBP · Maksimum 5 MB · En fazla 8 fotoğraf
+                    </span>
+
+
+                    <form id="galleryUploadForm" class="<%= galleries.length >= 8 ? 'd-none' : '' %>">
+
+                        <div class="row g-3 justify-content-center mt-2">
+
+
+                            <!-- FOTOĞRAF -->
+
+                            <div class="col-md-5">
+
+                                <input type="file" id="galleryImage" name="image" class="form-control"
+                                    accept="image/jpeg,image/png,image/webp" required>
+
+                            </div>
+
+
+                            <!-- ALT YAZI -->
+
+                            <div class="col-md-5">
+
+                                <input type="text" id="galleryCaption" name="caption" class="form-control"
+                                    placeholder="Fotoğraf altında görünecek yazı" maxlength="60" required>
+
+                            </div>
+
+
+                            <!-- YÜKLE -->
+
+                            <div class="col-md-2">
+
+                                <button type="submit" class="btn btn-dark rounded-pill w-100">
+
+                                    <i class="bi bi-cloud-arrow-up me-1"></i>
+
+                                    Yükle
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </form>
+
+
+                    <!-- GALERİ DOLU -->
+
+                    <div id="galleryFullMessage"
+                        class="mt-3 text-danger fw-semibold <%= galleries.length < 8 ? 'd-none' : '' %>">
+
+                        Galeri dolu. En fazla 8 fotoğraf ekleyebilirsiniz.
+
+                    </div>
+
+                </div>
+
+
+                <!-- GALERİ GÖRSELLERİ -->
+
+                <div class="row g-3" id="galleryAdminGrid">
+
+
+                    <% if (galleries.length===0) { %>
+
+                        <div class="col-12 gallery-empty-state">
+
+                            <div class="panel-card text-center py-5">
+
+                                <i class="bi bi-images fs-1 text-secondary d-block mb-3"></i>
+
+                                <h3 class="h5">
+                                    Henüz fotoğraf eklenmemiş
+                                </h3>
+
+                                <p class="text-secondary mb-0">
+                                    Yukarıdaki alandan ilk fotoğrafınızı yükleyebilirsiniz.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <% } else { %>
+
+
+                            <% galleries.forEach((gallery, index)=> { %>
+
+                                <div class="col-6 col-md-4 col-xl-3">
+
+                                    <div class="admin-gallery-item" data-gallery-id="<%= gallery._id %>">
+
+                                        <img src="<%= gallery.imageUrl %>" alt="<%= gallery.caption %>" loading="lazy">
+
+
+                                        <div class="gallery-admin-overlay">
+
+                                            <span>
+                                                <%= gallery.caption %>
+                                            </span>
+
+
+                                            <button type="button" class="gallery-delete-btn"
+                                                data-id="<%= gallery._id %>" title="Fotoğrafı sil">
+
+                                                <i class="bi bi-trash"></i>
+
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <% }) %>
+
+
+                                    <% } %>
+
+                </div>
+                
+
+                <!-- ======================================== -->
+<!-- BEFORE / AFTER -->
+<!-- ======================================== -->
+
+<div class="panel-card mt-4">
+
+    <div class="panel-header mb-4">
+
+        <div>
+            <span class="section-mini-title">
+                BEFORE / AFTER
+            </span>
+
+            <h2>
+                Öncesi / Sonrası
+            </h2>
+
+            <p class="text-secondary mb-0 small">
+                İşlem öncesi ve sonrası fotoğraflarını yükleyin.
+                Ana sayfada sürüklenebilir karşılaştırma olarak gösterilir.
+            </p>
+        </div>
+
+        <span class="badge text-bg-dark rounded-pill px-3 py-2">
+            2 fotoğraf
+        </span>
+
+    </div>
+
+
+    <form id="beforeAfterForm">
+
+        <div class="row g-4">
+
+
+            <!-- ======================================== -->
+            <!-- BEFORE -->
+            <!-- ======================================== -->
+
+            <div class="col-md-6">
+
+                <div class="border rounded-4 p-3 h-100">
+
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+
+                        <div>
+                            <span class="section-mini-title">
+                                BEFORE
+                            </span>
+
+                            <h3 class="h5 mb-0">
+                                İşlem Öncesi
+                            </h3>
+                        </div>
+
+                        <i class="bi bi-arrow-left-right fs-4 text-secondary"></i>
+
+                    </div>
+
+
+                    <!-- ÖNİZLEME -->
+
+                    <div
+                        id="beforeImagePreview"
+                        class="rounded-4 overflow-hidden bg-light mb-3"
+                        style="aspect-ratio: 16 / 9;"
+                    >
+
+                        <div
+                            class="h-100 d-flex flex-column align-items-center justify-content-center text-secondary"
+                        >
+
+                            <i class="bi bi-image fs-1 mb-2"></i>
+
+                            <span class="small">
+                                İşlem öncesi fotoğraf
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DOSYA -->
+
+                    <label
+                        for="beforeImage"
+                        class="form-label fw-semibold"
+                    >
+                        Fotoğraf seç
+                    </label>
+
+                    <input
+                        type="file"
+                        id="beforeImage"
+                        name="beforeImage"
+                        class="form-control"
+                        accept="image/jpeg,image/png,image/webp"
+                    >
+
+                    <div class="form-text">
+                        JPG, PNG veya WEBP · Maksimum 5 MB
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ======================================== -->
+            <!-- AFTER -->
+            <!-- ======================================== -->
+
+            <div class="col-md-6">
+
+                <div class="border rounded-4 p-3 h-100">
+
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+
+                        <div>
+                            <span class="section-mini-title">
+                                AFTER
+                            </span>
+
+                            <h3 class="h5 mb-0">
+                                İşlem Sonrası
+                            </h3>
+                        </div>
+
+                        <i class="bi bi-arrow-right fs-4 text-secondary"></i>
+
+                    </div>
+
+
+                    <!-- ÖNİZLEME -->
+
+                    <div
+                        id="afterImagePreview"
+                        class="rounded-4 overflow-hidden bg-light mb-3"
+                        style="aspect-ratio: 16 / 9;"
+                    >
+
+                        <div
+                            class="h-100 d-flex flex-column align-items-center justify-content-center text-secondary"
+                        >
+
+                            <i class="bi bi-image fs-1 mb-2"></i>
+
+                            <span class="small">
+                                İşlem sonrası fotoğraf
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DOSYA -->
+
+                    <label
+                        for="afterImage"
+                        class="form-label fw-semibold"
+                    >
+                        Fotoğraf seç
+                    </label>
+
+                    <input
+                        type="file"
+                        id="afterImage"
+                        name="afterImage"
+                        class="form-control"
+                        accept="image/jpeg,image/png,image/webp"
+                    >
+
+                    <div class="form-text">
+                        JPG, PNG veya WEBP · Maksimum 5 MB
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- ======================================== -->
+        <!-- BİLGİ -->
+        <!-- ======================================== -->
+
+        <div class="alert alert-secondary d-flex align-items-start gap-2 mt-4 mb-3">
+
+            <i class="bi bi-info-circle-fill mt-1"></i>
+
+            <div class="small">
+
+                <strong>Nasıl çalışır?</strong>
+
+                <div class="mt-1">
+                    İlk kayıtta iki fotoğrafı da yükleyin.
+                    Daha sonra yalnızca değiştirmek istediğiniz fotoğrafı seçebilirsiniz.
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ======================================== -->
+        <!-- KAYDET -->
+        <!-- ======================================== -->
+
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+
+            <span
+                id="beforeAfterStatus"
+                class="text-secondary small"
+            >
+                Henüz kaydedilmedi.
+            </span>
+
+            <button
+                type="submit"
+                id="beforeAfterSaveBtn"
+                class="btn btn-lime rounded-pill px-4"
+            >
+
+                <i class="bi bi-check2 me-1"></i>
+
+                Before / After kaydet
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+            </section>
+
+
+<!-- SLIDER -->
+<section id="slider" class="panel-section">
+
+    <div class="section-toolbar">
+
+        <div>
+
+            <span class="section-mini-title">
+                ANA SAYFA
+            </span>
+
+            <h2>
+                Slider Yönetimi
+            </h2>
+
+        </div>
+
+        <span
+            class="text-secondary small"
+            id="sliderCount">
+            0 / 5 slider
+        </span>
+
+    </div>
+
+
+    <!-- YENİ SLIDER EKLE -->
+    <div class="panel-card mb-4">
+
+        <div class="panel-header mb-4">
+
+            <div>
+
+                <span class="section-mini-title">
+                    İÇERİK YÖNETİMİ
+                </span>
+
+                <h2 id="sliderFormTitle">
+                    Yeni Slider Ekle
+                </h2>
+
+            </div>
+
+            <span class="badge-soft badge-success">
+                Maksimum 5
+            </span>
+
+        </div>
+
+
+        <form id="sliderForm">
+
+            <div class="row g-4">
+
+
+                <!-- FOTOĞRAF -->
+                <div class="col-xl-5">
+
+                    <label
+                        for="sliderImage"
+                        class="form-label">
+                        Slider görseli
+                    </label>
+
+                    <input
+                        type="file"
+                        id="sliderImage"
+                        name="image"
+                        class="form-control"
+                        accept="image/jpeg,image/png,image/webp"
+                        required>
+
+                    <small class="text-secondary d-block mt-2">
+                        JPG, PNG veya WEBP · Maksimum 5 MB
+                    </small>
+
+
+                    <!-- ÖNİZLEME -->
+                    <div
+                        id="sliderImagePreview"
+                        class="rounded-4 overflow-hidden bg-light d-flex align-items-center justify-content-center mt-3"
+                        style="min-height: 240px;">
+
+                        <div class="text-center text-secondary">
+
+                            <i class="bi bi-image fs-1 d-block mb-2"></i>
+
+                            <span>
+                                Henüz görsel seçilmedi.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- METİNLER -->
+                <div class="col-xl-7">
+
+                    <div class="row g-3">
+
+
+                        <!-- ÜST ETİKET -->
+                        <div class="col-12">
+
+                            <label class="form-label">
+                                Üst etiket
+                            </label>
+
+                            <input
+                                type="text"
+                                id="sliderEyebrow"
+                                class="form-control"
+                                maxlength="80"
+                                placeholder="Örn. YOUR CAR, OUR PASSION"
+                                required>
+
+                        </div>
+
+
+                        <!-- BAŞLIK ÖNCESİ -->
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Başlık öncesi
+                            </label>
+
+                            <textarea
+                                id="sliderTitleBefore"
+                                class="form-control"
+                                rows="3"
+                                maxlength="150"
+                                placeholder="Örn. Temizlik değil,"></textarea>
+
+                        </div>
+
+
+                        <!-- YEŞİL VURGU -->
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Yeşil vurgu
+                            </label>
+
+                            <textarea
+                                id="sliderTitleHighlight"
+                                class="form-control"
+                                rows="3"
+                                maxlength="80"
+                                placeholder="Örn. özen"
+                                ></textarea>
+
+                            <small class="text-secondary">
+                                Bu bölüm sitede yeşil renkte gösterilir.
+                            </small>
+
+                        </div>
+
+
+                        <!-- BAŞLIK SONRASI -->
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Başlık sonrası
+                            </label>
+
+                            <textarea
+                                id="sliderTitleAfter"
+                                class="form-control"
+                                rows="3"
+                                maxlength="150"
+                                placeholder="Örn. yapıyoruz."></textarea>
+
+                        </div>
+
+
+                        <!-- AÇIKLAMA -->
+                        <div class="col-12">
+
+                            <label class="form-label">
+                                Açıklama
+                            </label>
+
+                            <textarea
+                                id="sliderDescription"
+                                class="form-control"
+                                rows="4"
+                                maxlength="250"
+                                placeholder="Slider altında görünecek kısa açıklama."
+                                ></textarea>
+
+                        </div>
+
+
+                        <!-- BUTONLAR -->
+                        <div class="col-12">
+
+                            <div class="d-flex flex-wrap gap-2 justify-content-end">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-light rounded-pill px-4 d-none"
+                                    id="cancelSliderEditBtn">
+
+                                    <i class="bi bi-x-lg me-1"></i>
+                                    Düzenlemeyi İptal Et
+
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-lime rounded-pill px-4"
+                                    id="saveSliderBtn">
+
+                                    <i class="bi bi-plus-lg me-1"></i>
+                                    Slider Ekle
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- EKLENEN SLIDERLAR -->
+    <div class="section-toolbar mb-3">
+
+        <div>
+
+            <span class="section-mini-title">
+                SLIDERLAR
+            </span>
+
+            <h2>
+                Eklenen Sliderlar
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div
+        class="row g-4"
+        id="sliderAdminGrid">
+
+
+        <!-- BOŞ DURUM -->
+        <div
+            class="col-12"
+            id="sliderEmptyState">
+
+            <div class="panel-card text-center py-5">
+
+                <i class="bi bi-images fs-1 text-secondary d-block mb-3"></i>
+
+                <h3 class="h5">
+                    Henüz slider eklenmemiş
+                </h3>
+
+                <p class="text-secondary mb-0">
+                    Yukarıdaki formdan ilk sliderınızı ekleyebilirsiniz.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!--
+            DİNAMİK SLIDER KARTLARI
+            Script.js buraya ekleyecek.
+        -->
+
+
+    </div>
+
+</section>
+
+
+<!-- ABOUT -->
+<section id="about" class="panel-section">
+
+    <div class="section-toolbar">
+
+        <div>
+
+            <span class="section-mini-title">
+                İÇERİK YÖNETİMİ
+            </span>
+
+            <h2>
+                Hakkımızda
+            </h2>
+
+        </div>
+
+        <button
+            type="button"
+            class="btn btn-lime rounded-pill px-4"
+            id="saveAboutBtn">
+
+            <i class="bi bi-check2 me-1"></i>
+            Değişiklikleri Kaydet
+
+        </button>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <!-- SOL TARAF -->
+        <div class="col-xl-7">
+
+            <div class="panel-card h-100">
+
+                <div class="panel-header mb-4">
+
+                    <div>
+
+                        <span class="section-mini-title">
+                            HAKKIMIZDA İÇERİĞİ
+                        </span>
+
+                        <h2>
+                            Metin ve istatistikler
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="row g-3">
+
+                    <!-- BAŞLIK -->
+                    <div class="col-12">
+
+                        <label class="form-label">
+                            Başlık
+                        </label>
+
+                        <input
+                            type="text"
+                            id="aboutTitle"
+                            class="form-control"
+                            value="<%= aboutSettings.title %>"
+                            placeholder="Örn. Aracınızın temizliği değil, detayı bizim işimiz.">
+
+                    </div>
+
+
+                    <!-- AÇIKLAMA 1 -->
+                    <div class="col-12">
+
+                        <label class="form-label">
+                            Açıklama 1
+                        </label>
+
+                        <textarea
+                            id="aboutDescription1"
+                            class="form-control"
+                            rows="4"
+                            placeholder="Hakkımızda bölümünün ilk açıklamasını yazın."><%= aboutSettings.description1 %></textarea>
+
+                    </div>
+
+
+                    <!-- AÇIKLAMA 2 -->
+                    <div class="col-12">
+
+                        <label class="form-label">
+                            Açıklama 2
+                        </label>
+
+                        <textarea
+                            id="aboutDescription2"
+                            class="form-control"
+                            rows="4"
+                            placeholder="Hakkımızda bölümünün ikinci açıklamasını yazın."><%= aboutSettings.description2 %></textarea>
+
+                    </div>
+
+
+                    <!-- İSTATİSTİKLER -->
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Yıl deneyimi
+                        </label>
+
+                        <input
+                            type="text"
+                            id="aboutExperienceYears"
+                            class="form-control"
+                            value="<%= aboutSettings.experienceYears %>"
+                            placeholder="Örn. 8+">
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Yapılan işlem
+                        </label>
+
+                        <input
+                            type="text"
+                            id="aboutCompletedWorks"
+                            class="form-control"
+                            value="<%= aboutSettings.completedWorks %>"
+                            placeholder="Örn. 4K+">
+
+                    </div>
+
+
+                    <!-- TOPLAM HİZMET -->
+                    <div class="col-12">
+
+                        <div class="p-3 rounded-3 border bg-light">
+
+                            <div class="d-flex align-items-center gap-3">
+
+                                <div class="stat-icon icon-lime">
+                                    <i class="bi bi-stars"></i>
+                                </div>
+
+                                <div>
+
+                                    <div class="fw-semibold">
+                                        Toplam hizmet
+                                    </div>
+
+                                    <small class="text-secondary">
+                                        Bu değer hizmetler bölümündeki aktif hizmet sayısından otomatik hesaplanacak.
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SAĞ TARAF -->
+        <div class="col-xl-5">
+
+            <div class="panel-card h-100">
+
+                <div class="panel-header mb-4">
+
+                    <div>
+
+                        <span class="section-mini-title">
+                            GÖRSEL
+                        </span>
+
+                        <h2>
+                            Hakkımızda fotoğrafı
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FOTOĞRAF YÜKLEME -->
+                <div class="mb-3">
+
+                    <label
+                        for="aboutImage"
+                        class="form-label">
+                        Fotoğraf seç
+                    </label>
+
+                    <input
+                        type="file"
+                        id="aboutImage"
+                        name="image"
+                        class="form-control"
+                        accept="image/jpeg,image/png,image/webp">
+
+                    <small class="text-secondary d-block mt-2">
+                        JPG, PNG veya WEBP formatında bir fotoğraf seçebilirsiniz.
+                    </small>
+
+                </div>
+
+
+                <!-- FOTOĞRAF ÖNİZLEME -->
+                <div
+                    id="aboutImagePreview"
+                    class="rounded-4 overflow-hidden bg-light d-flex align-items-center justify-content-center"
+                    style="min-height: 300px;">
+
+                    <% if (aboutSettings.imageUrl) { %>
+
+                        <img
+                            src="<%= aboutSettings.imageUrl %>"
+                            alt="Hakkımızda görseli"
+                            class="w-100 h-100 object-fit-cover">
+
+                    <% } else { %>
+
+                        <div class="text-center text-secondary">
+
+                            <i class="bi bi-image fs-1 d-block mb-2"></i>
+
+                            <span>
+                                Henüz görsel seçilmedi.
+                            </span>
+
+                        </div>
+
+                    <% } %>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+    
+
+ <!-- SETTINGS -->
+<section id="settings" class="panel-section">
+
+    <div class="section-toolbar">
+
+        <div>
+            <span class="section-mini-title">SİSTEM</span>
+            <h2>İşletme Ayarları</h2>
+        </div>
+
+        <button
+            class="btn btn-lime rounded-pill px-4"
+            id="saveSettingsBtn">
+
+            <i class="bi bi-check2 me-1"></i>
+            Değişiklikleri Kaydet
+
+        </button>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <!-- SOL TARAF -->
+        <div class="col-xl-7">
+
+            <div class="panel-card h-100">
+
+                <div class="panel-header mb-4">
+
+                    <div>
+                        <span class="section-mini-title">
+                            FOOTER BİLGİLERİ
+                        </span>
+
+                        <h2>
+                            İşletme bilgileri
+                        </h2>
+                    </div>
+
+                </div>
+
+
+                <div class="row g-3">
+
+                    <!-- İŞLETME ADI -->
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            İşletme adı
+                        </label>
+
+                        <input
+                            type="text"
+                            id="businessName"
+                            class="form-control"
+                            value="<%= businessSettings.businessName %>">
+
+                    </div>
+
+
+                    <!-- TELEFON -->
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Telefon
+                        </label>
+
+                        <input
+                            type="text"
+                            id="businessPhone"
+                            class="form-control"
+                            value="<%= businessSettings.phone %>">
+
+                    </div>
+
+
+                    <!-- E-POSTA -->
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            E-posta
+                        </label>
+
+                        <input
+                            type="email"
+                            id="businessEmail"
+                            class="form-control"
+                            value="<%= businessSettings.email %>">
+
+                    </div>
+
+
+                    <!-- KONUM -->
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Şehir
+                        </label>
+
+                        <input
+                            type="text"
+                            id="businessLocation"
+                            class="form-control"
+                            value="<%= businessSettings.location %>">
+
+                    </div>
+
+
+                    <!-- FOOTER AÇIKLAMASI -->
+                    <div class="col-12">
+
+                        <label class="form-label">
+                            Footer açıklaması
+                        </label>
+
+                        <textarea
+                            id="footerDescription"
+                            class="form-control"
+                            rows="3"><%= businessSettings.footerDescription %></textarea>
+
+                    </div>
+
+
+                    <!-- COPYRIGHT -->
+                    <div class="col-12">
+
+                        <label class="form-label">
+                            Alt bilgi / copyright
+                        </label>
+
+                        <input
+                            type="text"
+                            id="businessCopyright"
+                            class="form-control"
+                            value="<%= businessSettings.copyright %>">
+
+                    </div>
+                    <div class="panel-card mb-4">
+    <div class="panel-header mb-4">
+        <div>
+            <span class="section-mini-title">RANDEVU SİSTEMİ</span>
+            <h2>Randevu durumu</h2>
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <strong>Randevuları kabul et</strong>
+            <div class="text-secondary small">
+                Kapalı olduğunda müşteriler randevu oluşturamaz.
+            </div>
+        </div>
+
+        <div class="form-check form-switch">
+            <input
+                class="form-check-input"
+                type="checkbox"
+                id="appointmentsOpen"
+                <%= businessSettings.appointmentsOpen ? "checked" : "" %>
+            >
+        </div>
+    </div>
+</div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SAĞ TARAF -->
+        <div class="col-xl-5">
+
+            <div class="panel-card mb-4">
+
+                <div class="panel-header mb-4">
+
+                    <div>
+
+                        <span class="section-mini-title">
+                            SOSYAL MEDYA & LİNKLER
+                        </span>
+
+                        <h2>
+                            Footer bağlantıları
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="settings-link-list">
+
+
+                    <!-- INSTAGRAM -->
+                    <div class="settings-link-row">
+
+                        <div class="link-label">
+
+                            <i class="bi bi-instagram"></i>
+
+                            <span>
+                                Instagram
+                            </span>
+
+                        </div>
+
+                        <input
+                            type="url"
+                            id="instagramUrl"
+                            class="form-control"
+                            value="<%= businessSettings.instagramUrl %>">
+
+                    </div>
+
+
+                    <!-- TIKTOK -->
+                    <div class="settings-link-row">
+
+                        <div class="link-label">
+
+                            <i class="bi bi-tiktok"></i>
+
+                            <span>
+                                TikTok
+                            </span>
+
+                        </div>
+
+                        <input
+                            type="url"
+                            id="tiktokUrl"
+                            class="form-control"
+                            value="<%= businessSettings.tiktokUrl %>">
+
+                    </div>
+
+
+                    <!-- WHATSAPP -->
+                    <div class="settings-link-row">
+
+                        <div class="link-label">
+
+                            <i class="bi bi-whatsapp"></i>
+
+                            <span>
+                                WhatsApp
+                            </span>
+
+                        </div>
+
+                        <input
+                            type="url"
+                            id="whatsappUrl"
+                            class="form-control"
+                            value="<%= businessSettings.whatsappUrl %>">
+
+                    </div>
+
+
+                    <!-- GOOGLE MAPS -->
+                    <div class="settings-link-row">
+
+                        <div class="link-label">
+
+                            <i class="bi bi-geo-alt-fill"></i>
+
+                            <span>
+                                Google Maps
+                            </span>
+
+                        </div>
+
+                        <input
+                            type="url"
+                            id="businessMapUrl"
+                            class="form-control"
+                            value="<%= businessSettings.mapUrl %>"
+                            placeholder="https://www.google.com/maps/embed?pb=...">
+
+                        <small class="text-secondary mt-1">
+
+                            Google Maps'teki iframe kodunun
+                            sadece <strong>src</strong> adresini yapıştırın.
+
+                        </small>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- FOOTER MENÜSÜ -->
+            <div class="panel-card">
+
+                <div class="panel-header mb-3">
+
+                    <div>
+
+                        <span class="section-mini-title">
+                            FOOTER MENÜSÜ
+                        </span>
+
+                        <h2>
+                            Menü bağlantıları
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="row g-2">
+
+                    <div class="col-6">
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="Hakkımızda">
+
+                    </div>
+
+                    <div class="col-6">
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="#about">
+
+                    </div>
+
+
+                    <div class="col-6">
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="Hizmetler">
+
+                    </div>
+
+                    <div class="col-6">
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="#services">
+
+                    </div>
+
+
+                    <div class="col-6">
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="Galeri">
+
+                    </div>
+
+                    <div class="col-6">
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="#gallery">
+
+                    </div>
+
+
+                    <div class="col-6">
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="Randevu">
+
+                    </div>
+
+                    <div class="col-6">
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="#appointment">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+    <!-- YENİ RANDEVU MODALI -->
+    <div class="modal fade" id="appointmentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content admin-modal">
+
+                <div class="modal-header">
+                    <div>
+                        <span class="section-mini-title">RANDEVU YÖNETİMİ</span>
+                        <h2 class="modal-title">Yeni Randevu</h2>
+                    </div>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat">
+                    </button>
+                </div>
+
+                <form id="appointmentForm">
+
+                    <div class="modal-body">
+
+                        <div class="row g-3">
+
+                            <!-- Ad Soyad -->
+                            <div class="col-md-6">
+                                <label class="form-label">Ad Soyad</label>
+                                <input type="text" name="name" class="form-control" required placeholder="Müşteri adı">
+                            </div>
+
+                            <!-- Telefon -->
+                            <div class="col-md-6">
+                                <label class="form-label">Telefon</label>
+                                <input type="tel" name="phone" class="form-control" required
+                                    placeholder="05XX XXX XX XX">
+                            </div>
+
+                            <!-- Araç -->
+                            <div class="col-md-6">
+                                <label class="form-label">Araç</label>
+                                <input type="text" name="vehicle" class="form-control" required placeholder="BMW 320i">
+                            </div>
+
+                            <!-- Hizmet -->
+                            <div class="col-md-6">
+                                <label class="form-label">Hizmet</label>
+
+                                <select name="service" class="form-select" required>
+
+                                    <option value="">Hizmet seçin</option>
+
+                                    <% services .filter(service=> service.status === "active")
+                                        .forEach(service => { %>
+
+                                        <option value="<%= service.name %>">
+                                            <%= service.name %>
+                                        </option>
+
+                                        <% }) %>
+
+                                </select>
+                            </div>
+
+                            <!-- Tarih -->
+                            <div class="col-md-6">
+                                <label class="form-label">Tarih</label>
+
+                                <input type="date" name="date" class="form-control" required>
+                            </div>
+
+                            <!-- Saat -->
+                            <div class="col-md-6">
+                                <label class="form-label">Saat</label>
+
+                                <select name="time" class="form-select" required>
+
+                                    <option value="">Saat seçin</option>
+                                    <option value="09:00">09:00</option>
+                                    <option value="10:00">10:00</option>
+                                    <option value="11:00">11:00</option>
+                                    <option value="12:00">12:00</option>
+                                    <option value="13:00">13:00</option>
+                                    <option value="14:00">14:00</option>
+                                    <option value="15:00">15:00</option>
+                                    <option value="16:00">16:00</option>
+                                    <option value="17:00">17:00</option>
+                                    <option value="18:00">18:00</option>
+
+                                </select>
+                            </div>
+
+                            <!-- Not -->
+                            <div class="col-12">
+                                <label class="form-label">Not</label>
+
+                                <textarea name="message" class="form-control" rows="3"
+                                    placeholder="Randevu notu..."></textarea>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">
+                            Vazgeç
+                        </button>
+
+                        <button type="submit" class="btn btn-lime rounded-pill px-4">
+                            Randevuyu Oluştur
+                        </button>
+
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- HİZMET EKLE / DÜZENLE MODALI -->
+    <div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content admin-modal">
+
+                <div class="modal-header">
+                    <div>
+                        <span class="section-mini-title">HİZMET YÖNETİMİ</span>
+                        <h2 class="modal-title" id="serviceModalTitle">
+                            Hizmet Ekle
+                        </h2>
+                    </div>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat">
+                    </button>
+                </div>
+
+                <form id="serviceForm">
+
+                    <div class="modal-body">
+
+                        <!-- Hizmet adı -->
+                        <div class="mb-3">
+                            <label class="form-label">Hizmet adı</label>
+
+                            <input id="serviceName" name="name" type="text" class="form-control" required
+                                placeholder="Örn. Seramik Kaplama">
+                        </div>
+
+
+                        <!-- Açıklama -->
+                        <div class="mb-3">
+                            <label class="form-label">Açıklama</label>
+
+                            <textarea id="serviceDescription" name="description" class="form-control" rows="3" required
+                                placeholder="Hizmet açıklaması"></textarea>
+                        </div>
+
+
+                        <!-- Fiyat + Durum -->
+                        <div class="row g-3">
+
+                            <div class="col-6">
+                                <label class="form-label">Fiyat</label>
+
+                                <input id="servicePrice" name="price" type="number" class="form-control" min="0"
+                                    required placeholder="2500">
+                            </div>
+
+
+                            <div class="col-6">
+                                <label class="form-label">Durum</label>
+
+                                <select id="serviceStatus" name="status" class="form-select">
+
+                                    <option value="active">Yayında</option>
+                                    <option value="inactive">Pasif</option>
+
+                                </select>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="modal-footer">
+
+                        <!-- SADECE DÜZENLEMEDE GÖRÜNECEK -->
+                        <button type="button" class="btn btn-outline-danger rounded-pill px-4 d-none"
+                            id="serviceDeleteBtn">
+
+                            <i class="bi bi-trash me-1"></i>
+                            Sil
+
+                        </button>
+
+
+                        <div class="ms-auto d-flex gap-2">
+
+                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">
+
+                                Vazgeç
+
+                            </button>
+
+
+                            <button type="submit" class="btn btn-lime rounded-pill px-4">
+
+                                Kaydet
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGOUT KUTUSU -->
+    <div class="logout-popover" id="logoutPopover">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Çıkış işlemi backend bağlantısında yapılacak.</span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/script.js"></script>
+</body>
+
+</html>

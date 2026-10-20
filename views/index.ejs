@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+        content="Profesyonel oto yıkama, pasta cila ve araç detailing hizmetleri için randevu oluşturun." />
+    <title>DO WAX CAR DETAİLİNG</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/logo.png?v=2">
+</head>
+
+<body>
+
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- NAVBAR -->
+    <nav id="mainNavbar" class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#home" aria-label="Detail Garage ana sayfa">
+
+                <img src="/tamLogo.png" alt="Detail Garage" style="height: 60px; width: auto; object-fit: contain;">
+
+            </a>
+
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Menüyü aç">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                    <li class="nav-item"><a class="nav-link" href="#home">Ana Sayfa</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about">Hakkımızda</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#services">Hizmetler</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#gallery">Galeri</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#appointment">Randevu</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">İletişim</a></li>
+                    <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                        <a class="btn btn-accent rounded-pill px-4" href="#appointment">Randevu Al <i
+                                class="bi bi-arrow-up-right ms-1"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+   <!-- HERO / DRAGGABLE SLIDER -->
+<header id="home" class="hero-section">
+
+    <div
+        id="heroCarousel"
+        class="carousel slide carousel-fade h-100"
+        data-bs-ride="carousel"
+        data-bs-interval="5500"
+    >
+
+        <% if (sliders && sliders.length > 0) { %>
+
+            <!-- INDICATORS -->
+            <div class="carousel-indicators">
+
+                <% sliders.forEach((slider, index) => { %>
+
+                    <button
+                        type="button"
+                        data-bs-target="#heroCarousel"
+                        data-bs-slide-to="<%= index %>"
+                        class="<%= index === 0 ? 'active' : '' %>"
+                        <%= index === 0 ? 'aria-current="true"' : '' %>
+                        aria-label="<%= index + 1 %>. slayt"
+                    ></button>
+
+                <% }) %>
+
+            </div>
+
+            <!-- SLIDES -->
+            <div
+                class="carousel-inner h-100 drag-slider"
+                id="heroCarouselInner"
+            >
+
+                <% sliders.forEach((slider, index) => { %>
+
+                    <div
+                        class="carousel-item <%= index === 0 ? 'active' : '' %> h-100"
+                        style="
+                            background-image:
+                                linear-gradient(
+                                    rgba(0,0,0,.48),
+                                    rgba(0,0,0,.48)
+                                ),
+                                url('<%= slider.imageUrl %>');
+                            background-size: cover;
+                            background-position: center;
+                        "
+                    >
+
+                        <div class="hero-overlay"></div>
+
+                        <div class="container position-relative h-100 d-flex align-items-center">
+
+                            <div
+                                class="hero-content text-white <%= index === 0 ? 'reveal reveal-left is-visible' : '' %>"
+                            >
+
+                                <!-- ÜST ETİKET -->
+                                <div class="eyebrow-pill mb-3">
+                                    <span></span>
+                                    <%= slider.eyebrow %>
+                                </div>
+
+                                <!-- BAŞLIK -->
+                                <h1 class="display-2 fw-bold mb-4">
+
+                                    <%= slider.titleBefore %>
+
+                                    <% if (slider.titleHighlight) { %>
+
+                                        <span class="text-accent">
+                                            <%= slider.titleHighlight %>
+                                        </span>
+
+                                    <% } %>
+
+                                    <%= slider.titleAfter %>
+
+                                </h1>
+
+                                <!-- AÇIKLAMA -->
+                                <p class="lead mb-4 text-white-50 hero-copy">
+                                    <%= slider.description %>
+                                </p>
+
+                                <!-- STATİK BUTONLAR -->
+                                <div class="d-flex flex-wrap gap-2">
+
+                                    <a
+                                        href="#appointment"
+                                        class="btn btn-accent btn-lg rounded-pill px-4"
+                                    >
+                                        Randevu Oluştur
+                                        <i class="bi bi-arrow-right ms-1"></i>
+                                    </a>
+
+                                    <a
+                                        href="#services"
+                                        class="btn btn-outline-light btn-lg rounded-pill px-4"
+                                    >
+                                        Hizmetleri Gör
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                <% }) %>
+
+            </div>
+
+            <!-- OKLAR -->
+            <% if (sliders.length > 1) { %>
+
+                <button
+                    class="carousel-control-prev"
+                    type="button"
+                    data-bs-target="#heroCarousel"
+                    data-bs-slide="prev"
+                    aria-label="Önceki slayt"
+                >
+                    <span class="slider-control-icon">
+                        <i class="bi bi-arrow-left"></i>
+                    </span>
+                </button>
+
+                <button
+                    class="carousel-control-next"
+                    type="button"
+                    data-bs-target="#heroCarousel"
+                    data-bs-slide="next"
+                    aria-label="Sonraki slayt"
+                >
+                    <span class="slider-control-icon">
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
+                </button>
+
+            <% } %>
+
+        <% } else { %>
+
+            <!-- HENÜZ SLIDER YOK -->
+            <div class="carousel-inner h-100">
+
+                <div class="carousel-item active h-100">
+
+                    <div
+                        class="hero-slide d-flex align-items-center h-100"
+                        style="
+                            background:
+                                linear-gradient(
+                                    rgba(0,0,0,.55),
+                                    rgba(0,0,0,.55)
+                                ),
+                                #222;
+                        "
+                    >
+
+                        <div class="container">
+
+                            <div class="hero-content text-white">
+
+                                <div class="eyebrow-pill mb-3">
+                                    <span></span>
+                                    DETAIL GARAGE
+                                </div>
+
+                                <h1 class="display-2 fw-bold mb-4">
+                                    Aracınız için
+                                    <span class="text-accent">
+                                        profesyonel
+                                    </span>
+                                    bakım.
+                                </h1>
+
+                                <p class="lead mb-4 text-white-50 hero-copy">
+                                    Profesyonel oto yıkama, pasta cila ve
+                                    detailing uygulamaları.
+                                </p>
+
+                                <div class="d-flex flex-wrap gap-2">
+
+                                    <a
+                                        href="#appointment"
+                                        class="btn btn-accent btn-lg rounded-pill px-4"
+                                    >
+                                        Randevu Oluştur
+                                        <i class="bi bi-arrow-right ms-1"></i>
+                                    </a>
+
+                                    <a
+                                        href="#services"
+                                        class="btn btn-outline-light btn-lg rounded-pill px-4"
+                                    >
+                                        Hizmetleri Gör
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        <% } %>
+
+        <!-- ALT BİLGİ BAR -->
+        <div class="hero-bottom-bar">
+
+            <div class="container d-flex justify-content-between align-items-center gap-3">
+
+                <div class="d-flex align-items-center gap-2 small text-white-50">
+                    <i class="bi bi-mouse"></i>
+                    Kaydırarak keşfet
+                </div>
+
+                <div class="small text-white-50">
+                    <i class="bi bi-geo-alt-fill me-1 text-accent"></i>
+                    Adana · Oto Detailing
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</header>
+
+    <main>
+
+        <!-- ABOUT -->
+        <section id="about" class="py-5 section-padding overflow-hidden">
+            <div class="container py-lg-5">
+
+                <div class="row align-items-center g-5">
+
+                    <!-- SOL TARAF -->
+                    <div class="col-lg-6 reveal reveal-left">
+
+                        <span class="section-kicker">
+                            HAKKIMIZDA
+                        </span>
+
+                        <h2 class="display-6 fw-bold mt-2 mb-4">
+                            <%= aboutSettings.title %>
+                        </h2>
+
+                        <p class="text-secondary mb-3">
+                            <%= aboutSettings.description1 %>
+                        </p>
+
+                        <p class="text-secondary mb-4">
+                            <%= aboutSettings.description2 %>
+                        </p>
+
+
+                        <div class="row g-3">
+
+                            <!-- YIL DENEYİM -->
+                            <div class="col-sm-4">
+
+                                <div class="mini-stat">
+
+                                    <strong>
+                                        <%= aboutSettings.experienceYears %>
+                                    </strong>
+
+                                    <span>
+                                        Yıl Deneyim
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- YAPILAN İŞLEM -->
+                            <div class="col-sm-4">
+
+                                <div class="mini-stat">
+
+                                    <strong>
+                                        <%= aboutSettings.completedWorks %>
+                                    </strong>
+
+                                    <span>
+                                        İşlem
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- TOPLAM HİZMET -->
+                            <div class="col-sm-4">
+
+                                <div class="mini-stat">
+
+                                    <strong>
+                                        <%= services.length %>
+                                    </strong>
+
+                                    <span>
+                                        Toplam Hizmet
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- SAĞ TARAF -->
+                    <div class="col-lg-6 reveal reveal-right">
+
+                        <div class="about-image-wrap">
+
+                            <% if (aboutSettings.imageUrl) { %>
+
+                                <img src="<%= aboutSettings.imageUrl %>" alt="Detail Garage hakkımızda"
+                                    class="img-fluid rounded-4 shadow" loading="lazy">
+
+                                <% } else { %>
+
+                                    <div class="w-100 rounded-4 shadow bg-light d-flex align-items-center justify-content-center"
+                                        style="min-height: 420px;">
+
+                                        <div class="text-center text-secondary">
+
+                                            <i class="bi bi-image fs-1 d-block mb-2"></i>
+
+                                            <span>
+                                                Hakkımızda görseli henüz eklenmedi.
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                    <% } %>
+
+
+                                        <!-- STATİK KUTU -->
+                                        <div class="experience-card shadow">
+
+                                            <div class="experience-icon">
+                                                <i class="bi bi-stars"></i>
+                                            </div>
+
+                                            <div>
+
+                                                <strong>
+                                                    Premium bakım
+                                                </strong>
+
+                                                <span>
+                                                    Detay odaklı uygulama
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <!-- STATİK ROZET -->
+                                        <div class="floating-badge">
+
+                                            <i class="bi bi-shield-check"></i>
+
+                                            Profesyonel ürünler
+
+                                        </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SERVICES -->
+        <section id="services" class="py-5 services-section section-padding overflow-hidden">
+            <div class="container py-lg-5">
+
+                <div class="text-center mx-auto section-heading mb-5 reveal">
+
+                    <span class="section-kicker">
+                        YAPTIĞIMIZ İŞLER
+                    </span>
+
+                    <h2 class="display-6 fw-bold mt-2">
+                        Aracınıza uyguladığımız hizmetler
+                    </h2>
+
+                    <p class="text-secondary mb-0">
+                        İhtiyacınıza göre tek hizmet veya kapsamlı bakım paketi oluşturabilirsiniz.
+                    </p>
+
+                </div>
+
+
+                <div class="row g-4">
+
+                    <% if (services.length===0) { %>
+
+                        <div class="col-12">
+
+                            <div class="text-center py-5">
+
+                                <i class="bi bi-stars fs-1 text-secondary d-block mb-3"></i>
+
+                                <h3 class="h5">
+                                    Henüz hizmet eklenmemiş
+                                </h3>
+
+                                <p class="text-secondary mb-0">
+                                    Yakında hizmetlerimizi burada görebileceksiniz.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <% } else { %>
+
+
+                            <% services.forEach((service, index)=> { %>
+
+                                <div class="col-md-6 col-lg-3 reveal">
+
+                                    <article class="service-card h-100">
+
+                                        <!-- İKON -->
+                                        <div class="service-icon">
+                                            <i class="bi <%= service.icon || 'bi-stars' %>"></i>
+                                        </div>
+
+
+                                        <!-- NUMARA -->
+                                        <div class="service-number">
+                                            <%= String(index + 1).padStart(2, "0" ) %>
+                                        </div>
+
+
+                                        <!-- HİZMET ADI -->
+                                        <h3 class="h5 fw-bold">
+                                            <%= service.name %>
+                                        </h3>
+
+
+                                        <!-- AÇIKLAMA -->
+                                        <p class="text-secondary small mb-2">
+                                            <%= service.description %>
+                                        </p>
+
+
+                                        <!-- FİYAT -->
+                                        <strong class="fw-bold text-dark">
+                                            ₺<%= service.price.toLocaleString("tr-TR") %>
+                                        </strong>
+
+
+                                        <span class="service-line"></span>
+
+                                    </article>
+
+                                </div>
+
+                                <% }) %>
+
+
+                                    <% } %>
+
+                </div>
+
+
+                <!-- ALT BİLGİ -->
+                <div class="service-note mt-5 reveal">
+
+                    <i class="bi bi-info-circle"></i>
+
+                    <span>
+                        Araç modeli ve mevcut boya durumuna göre işlem süresi ve paket içeriği değişebilir.
+                    </span>
+
+                </div>
+
+            </div>
+        </section>
+
+      <!-- GALLERY -->
+        <section id="gallery" class="py-5 overflow-hidden">
+
+            <div class="container">
+
+                <!-- GALERİ BAŞLIK -->
+                <div
+                    class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4 reveal">
+
+                    <div>
+
+                        <span class="section-kicker">
+                            GALERİ
+                        </span>
+
+                        <h2 id="galleryPublicTitle" class="display-6 fw-bold mt-2 mb-0">
+
+                            <%= gallerySettings.title %>
+
+                        </h2>
+
+                    </div>
+
+                    <p id="galleryPublicDescription" class="text-secondary fw-bold mb-0 col-lg-5">
+
+                        <%= gallerySettings.description %>
+
+                    </p>
+
+                </div>
+
+
+                <% if (galleries.length===0) { %>
+
+                    <!-- GALERİ BOŞ -->
+                    <div class="row">
+
+                        <div class="col-12">
+
+                            <div class="text-center py-5 text-secondary">
+
+                                Henüz galeri fotoğrafı eklenmemiş.
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <% } else if (galleries.length===1) { %>
+
+                        <!-- 1 FOTOĞRAF -->
+                        <div class="row g-3">
+
+                            <div class="col-12 reveal reveal-scale">
+
+                                <div class="gallery-item gallery-feature">
+
+                                    <img src="<%= galleries[0].imageUrl %>" alt="<%= galleries[0].caption %>"
+                                        class="gallery-img" loading="lazy" data-bs-toggle="modal"
+                                        data-bs-target="#imageModal" onclick="openImage(this.src)">
+
+                                    <div class="gallery-caption">
+
+                                        <span>01</span>
+
+                                        <strong>
+                                            <%= galleries[0].caption %>
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <% } else if (galleries.length===2) { %>
+
+                            <!-- 2 FOTOĞRAF -->
+                            <div class="row g-3">
+
+                                <% galleries.forEach((gallery, index)=> { %>
+
+                                    <div class="col-12 col-md-6 reveal reveal-scale">
+
+                                        <div class="gallery-item gallery-feature">
+
+                                            <img src="<%= gallery.imageUrl %>" alt="<%= gallery.caption %>"
+                                                class="gallery-img" loading="lazy" data-bs-toggle="modal"
+                                                data-bs-target="#imageModal" onclick="openImage(this.src)">
+
+                                            <div class="gallery-caption">
+
+                                                <span>
+                                                    <%= String(index + 1).padStart(2, "0" ) %>
+                                                </span>
+
+                                                <strong>
+                                                    <%= gallery.caption %>
+                                                </strong>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <% }) %>
+
+                            </div>
+
+
+                            <% } else if (galleries.length===3) { %>
+
+                                <!-- 3 FOTOĞRAF -->
+                                <div class="row g-3">
+
+                                    <!-- BÜYÜK -->
+                                    <div class="col-12 col-lg-7 reveal reveal-scale">
+
+                                        <div class="gallery-item gallery-feature">
+
+                                            <img src="<%= galleries[0].imageUrl %>" alt="<%= galleries[0].caption %>"
+                                                class="gallery-img" loading="lazy" data-bs-toggle="modal"
+                                                data-bs-target="#imageModal" onclick="openImage(this.src)">
+
+                                            <div class="gallery-caption">
+
+                                                <span>01</span>
+
+                                                <strong>
+                                                    <%= galleries[0].caption %>
+                                                </strong>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- 2 KÜÇÜK -->
+                                    <div class="col-12 col-lg-5">
+
+                                        <div class="row g-3">
+
+                                            <% [1, 2].forEach((index)=> { %>
+
+                                                <div class="col-6 col-lg-12 reveal reveal-scale">
+
+                                                    <div class="gallery-item">
+
+                                                        <img src="<%= galleries[index].imageUrl %>"
+                                                            alt="<%= galleries[index].caption %>" class="gallery-img"
+                                                            loading="lazy" data-bs-toggle="modal"
+                                                            data-bs-target="#imageModal" onclick="openImage(this.src)">
+
+                                                        <div class="gallery-caption">
+
+                                                            <span>
+                                                                <%= String(index + 1).padStart(2, "0" ) %>
+                                                            </span>
+
+                                                            <strong>
+                                                                <%= galleries[index].caption %>
+                                                            </strong>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <% }) %>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <% } else if (galleries.length===4) { %>
+
+                                    <!-- 4 FOTOĞRAF -->
+                                    <div class="row g-3">
+
+                                        <% galleries.forEach((gallery, index)=> { %>
+
+                                            <div class="col-6 col-lg-3 reveal reveal-scale">
+
+                                                <div class="gallery-item gallery-four">
+
+                                                    <img src="<%= gallery.imageUrl %>" alt="<%= gallery.caption %>"
+                                                        class="gallery-img" loading="lazy" data-bs-toggle="modal"
+                                                        data-bs-target="#imageModal" onclick="openImage(this.src)">
+
+                                                    <div class="gallery-caption">
+
+                                                        <span>
+                                                            <%= String(index + 1).padStart(2, "0" ) %>
+                                                        </span>
+
+                                                        <strong>
+                                                            <%= gallery.caption %>
+                                                        </strong>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                            <% }) %>
+
+                                    </div>
+
+
+                                    <% } else { %>
+
+                                        <!-- 5+ FOTOĞRAF -->
+
+                                        <div class="row g-3">
+
+
+                                            <!-- BÜYÜK FOTOĞRAF -->
+
+                                            <div class="col-12 col-lg-7 reveal reveal-scale">
+
+                                                <div class="gallery-item gallery-feature">
+
+                                                    <img src="<%= galleries[0].imageUrl %>"
+                                                        alt="<%= galleries[0].caption %>" class="gallery-img"
+                                                        loading="lazy" data-bs-toggle="modal"
+                                                        data-bs-target="#imageModal" onclick="openImage(this.src)">
+
+                                                    <div class="gallery-caption">
+
+                                                        <span>01</span>
+
+                                                        <strong>
+                                                            <%= galleries[0].caption %>
+                                                        </strong>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <!-- SAĞ 4 FOTOĞRAF -->
+
+                                            <div class="col-12 col-lg-5">
+
+                                                <div class="row g-3">
+
+                                                    <% [1, 2, 3, 4].forEach((index)=> { %>
+
+                                                        <% if (galleries[index]) { %>
+
+                                                            <div class="col-6 reveal reveal-scale">
+
+                                                                <div class="gallery-item">
+
+                                                                    <img src="<%= galleries[index].imageUrl %>"
+                                                                        alt="<%= galleries[index].caption %>"
+                                                                        class="gallery-img" loading="lazy"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#imageModal"
+                                                                        onclick="openImage(this.src)">
+
+                                                                    <div class="gallery-caption">
+
+                                                                        <span>
+                                                                            <%= String(index + 1).padStart(2, "0" ) %>
+                                                                        </span>
+
+                                                                        <strong>
+                                                                            <%= galleries[index].caption %>
+                                                                        </strong>
+
+                                                                    </div>
+
+                                                                </div>
+
+                                                            </div>
+
+                                                            <% } %>
+
+                                                                <% }) %>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <!-- 6-8. FOTOĞRAFLAR -->
+
+                                        <% if (galleries.length> 5) { %>
+
+                                            <div class="row g-3 mt-0">
+
+                                                <% [5, 6, 7].forEach((index)=> { %>
+
+                                                    <% if (galleries[index]) { %>
+
+                                                        <div class="col-12 col-md-4 reveal reveal-scale">
+
+                                                            <div class="gallery-item">
+
+                                                                <img src="<%= galleries[index].imageUrl %>"
+                                                                    alt="<%= galleries[index].caption %>"
+                                                                    class="gallery-img" loading="lazy"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#imageModal"
+                                                                    onclick="openImage(this.src)">
+
+                                                                <div class="gallery-caption">
+
+                                                                    <span>
+                                                                        <%= String(index + 1).padStart(2, "0" ) %>
+                                                                    </span>
+
+                                                                    <strong>
+                                                                        <%= galleries[index].caption %>
+                                                                    </strong>
+
+                                                                </div>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                        <% } %>
+
+                                                            <% }) %>
+
+                                            </div>
+
+                                            <% } %>
+
+                                                <% } %>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================== -->
+        <!-- BEFORE / AFTER -->
+        <!-- ======================================== -->
+
+        <% if (beforeAfter && beforeAfter.beforeImageUrl &&
+            beforeAfter.afterImageUrl) { %>
+
+            <section id="beforeAfter" class="py-5 overflow-hidden">
+
+                <div class="container">
+
+                    <!-- BAŞLIK -->
+
+                    <div class="row justify-content-center text-center mb-4 reveal">
+
+                        <div class="col-lg-8">
+
+                            <span class="section-kicker">
+                                BEFORE / AFTER
+                            </span>
+
+                            <h2 class="display-6 fw-bold mt-2 mb-3">
+                                Farkı kendi gözlerinizle görün.
+                            </h2>
+
+                            <p class="text-secondary mb-0">
+                                İşlem öncesi ve sonrası arasındaki farkı görmek için
+                                ortadaki çizgiyi sağa veya sola sürükleyin.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- KARŞILAŞTIRMA ALANI -->
+
+                    <div class="row justify-content-center">
+
+                        <div class="col-12 col-xl-10 reveal reveal-scale">
+
+                            <div
+                                class="before-after-container position-relative overflow-hidden rounded-4">
+
+                                <!-- AFTER -->
+
+                                <img
+                                    src="<%= beforeAfter.afterImageUrl %>"
+                                    alt="İşlem sonrası"
+                                    class="before-after-image w-100 d-block"
+                                    draggable="false">
+
+
+                                <!-- BEFORE -->
+
+                                <div
+                                    class="before-after-before position-absolute top-0 start-0 h-100 overflow-hidden">
+
+                                    <img
+                                        src="<%= beforeAfter.beforeImageUrl %>"
+                                        alt="İşlem öncesi"
+                                        class="before-after-image position-absolute top-0 start-0 h-100"
+                                        draggable="false">
+
+                                </div>
+
+
+                                <!-- ETİKETLER -->
+
+                                <span
+                                    class="before-after-label before-label">
+                                    BEFORE
+                                </span>
+
+                                <span
+                                    class="before-after-label after-label">
+                                    AFTER
+                                </span>
+
+
+                                <!-- SÜRÜKLEME ÇİZGİSİ -->
+
+                                <div
+                                    class="before-after-divider position-absolute top-0 h-100">
+
+                                    <button
+                                        type="button"
+                                        class="before-after-handle"
+                                        aria-label="Before ve After görsellerini karşılaştır">
+
+                                        <i class="bi bi-arrows-left-right"></i>
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        <% } %>
+
+        <!-- APPOINTMENT + MAP -->
+        <section id="appointment" class="py-5 booking-section section-padding overflow-hidden">
+            <div class="container py-lg-5">
+
+                <div class="row g-4 g-lg-5 align-items-stretch">
+
+                    <!-- RANDEVU FORMU -->
+                    <div class="col-lg-6 reveal reveal-left">
+                        <div class="appointment-card h-100">
+
+                            <span class="section-kicker">RANDEVU</span>
+
+                            <h2 class="display-6 fw-bold mt-2 mb-3">
+                                Aracınızın yerini
+                                <br>
+                                <span class="text-accent-dark">şimdiden ayırın.</span>
+                            </h2>
+
+                            <p class="text-secondary mb-4">
+                                Size uygun tarih ve saati seçerek randevu talebinizi oluşturabilirsiniz.
+                            </p>
+
+                            <form id="appointmentForm" class="row g-3" action="/appointments" method="POST">
+
+                                <!-- AD SOYAD -->
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">
+                                        Ad Soyad
+                                    </label>
+
+                                    <input type="text" id="name" name="name" class="form-control"
+                                        placeholder="Adınız Soyadınız" required>
+                                </div>
+
+                                <!-- TELEFON -->
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label">
+                                        Telefon
+                                    </label>
+
+                                    <input type="tel" id="phone" name="phone" class="form-control"
+                                        placeholder="05XX XXX XX XX" required>
+                                </div>
+
+                                <!-- ARAÇ -->
+                                <div class="col-md-6">
+                                    <label for="vehicle" class="form-label">
+                                        Araç
+                                    </label>
+
+                                    <input type="text" id="vehicle" name="vehicle" class="form-control"
+                                        placeholder="Örn. BMW 320i" required>
+                                </div>
+
+                                <!-- HİZMET -->
+                                <div class="col-md-6">
+                                    <label for="service" class="form-label">Hizmet</label>
+
+                                    <select id="service" name="service" class="form-select" required>
+
+                                        <option value="">Hizmet seçin</option>
+
+                                        <% services.forEach(service=> { %>
+
+                                            <option value="<%= service.name %>">
+                                                <%= service.name %>
+                                            </option>
+
+                                            <% }) %>
+
+                                    </select>
+                                </div>
+
+                                <!-- TARİH -->
+                                <div class="col-md-6">
+                                    <label for="date" class="form-label">
+                                        Tarih
+                                    </label>
+
+                                    <input type="date" id="date" name="date" class="form-control" required>
+                                </div>
+
+                                <!-- SAAT -->
+                                <div class="col-md-6">
+                                    <label for="time" class="form-label">
+                                        Saat
+                                    </label>
+
+                                    <select id="time" name="time" class="form-select" required>
+                                        <option value="">Saat seçin</option>
+                                        <option value="09:00">09:00</option>
+                                        <option value="10:00">10:00</option>
+                                        <option value="11:00">11:00</option>
+                                        <option value="12:00">12:00</option>
+                                        <option value="13:00">13:00</option>
+                                        <option value="14:00">14:00</option>
+                                        <option value="15:00">15:00</option>
+                                        <option value="16:00">16:00</option>
+                                        <option value="17:00">17:00</option>
+                                        <option value="18:00">18:00</option>
+                                    </select>
+                                </div>
+
+                                <!-- NOT -->
+                                <div class="col-12">
+                                    <label for="message" class="form-label">
+                                        Not
+                                    </label>
+
+                                    <input type="text" id="message" name="message" class="form-control"
+                                        placeholder="Eklemek istediğiniz bir detay varsa yazabilirsiniz.">
+                                </div>
+
+                                <!-- GÖNDER -->
+                                <button type="submit" id="appointmentSubmitBtn"
+                                    class="btn btn-dark rounded-pill px-4 py-3" <%=businessSettings.appointmentsOpen
+                                    ? "" : "disabled" %>
+                                    >
+                                    <%= businessSettings.appointmentsOpen ? "Randevu Talebi Gönder"
+                                        : "Randevularımız Doludur" %>
+
+                                        <% if (businessSettings.appointmentsOpen) { %>
+                                            <i class="bi bi-arrow-right ms-1"></i>
+                                            <% } %>
+                                </button>
+
+                            </form>
+
+                        </div>
+                    </div>
+
+                    <!-- MAP -->
+                    <div class="col-lg-6 reveal reveal-right">
+                        <div class="map-card h-100 overflow-hidden rounded-4 shadow-sm position-relative">
+
+                            <iframe id="businessMap" src="<%= businessSettings.mapUrl %>" title="Detail Garage konumu"
+                                width="100%" height="100%" style="border:0; min-height:540px;" allowfullscreen
+                                loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                            </iframe>
+
+                            <div class="map-overlay-card">
+                                <span class="small text-white-50">
+                                    BİZİ ZİYARET EDİN
+                                </span>
+
+                                <strong>
+                                    Adana / Yüreğir
+                                </strong>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        </div>
+        </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer id="contact" class="footer-section pt-5 pb-4">
+        <div class="container">
+
+            <div class="row g-4 pb-4">
+
+                <!-- İŞLETME -->
+                <div class="col-lg-5">
+
+                    <a class="navbar-brand fw-bold text-white d-inline-flex align-items-center gap-2 mb-3" href="#home">
+
+                        <span class="brand-mark">
+                            <i class="bi bi-droplet-fill"></i>
+                        </span>
+
+                        <span>
+                            <%= businessSettings.businessName %>
+                        </span>
+
+                    </a>
+
+                    <p class="text-white-50 mb-0 col-lg-9">
+                        <%= businessSettings.footerDescription %>
+                    </p>
+
+                </div>
+
+
+                <!-- MENÜ -->
+                <div class="col-6 col-lg-2">
+
+                    <h3 class="h6 fw-bold text-white">
+                        Menü
+                    </h3>
+
+                    <ul class="list-unstyled footer-links">
+
+                        <li>
+                            <a href="#about">
+                                Hakkımızda
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#services">
+                                Hizmetler
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#gallery">
+                                Galeri
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#appointment">
+                                Randevu
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+
+                <!-- İLETİŞİM -->
+                <div class="col-6 col-lg-2">
+
+                    <h3 class="h6 fw-bold text-white">
+                        İletişim
+                    </h3>
+
+                    <ul class="list-unstyled footer-links">
+
+                        <li>
+                            <a href="tel:<%= businessSettings.phone %>">
+                                <%= businessSettings.phone %>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="mailto:<%= businessSettings.email %>">
+                                <%= businessSettings.email %>
+                            </a>
+                        </li>
+
+                        <li>
+                            <span>
+                                <%= businessSettings.location %>
+                            </span>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+
+                <!-- SOSYAL MEDYA -->
+                <div class="col-lg-3">
+
+                    <h3 class="h6 fw-bold text-white">
+                        Sosyal Medya
+                    </h3>
+
+                    <div class="d-flex gap-2">
+
+                        <a class="social-btn" href="<%= businessSettings.instagramUrl %>" target="_blank"
+                            rel="noopener noreferrer" aria-label="Instagram">
+
+                            <i class="bi bi-instagram"></i>
+
+                        </a>
+
+                        <a class="social-btn" href="<%= businessSettings.tiktokUrl %>" target="_blank"
+                            rel="noopener noreferrer" aria-label="TikTok">
+
+                            <i class="bi bi-tiktok"></i>
+
+                        </a>
+
+                        <a class="social-btn" href="<%= businessSettings.whatsappUrl %>" target="_blank"
+                            rel="noopener noreferrer" aria-label="WhatsApp">
+
+                            <i class="bi bi-whatsapp"></i>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ALT BİLGİ -->
+            <div
+                class="border-top border-secondary-subtle pt-3 d-flex flex-column flex-md-row justify-content-between gap-2">
+
+                <small class="text-white-50">
+                    <%= businessSettings.copyright %>
+                </small>
+
+                <small class="text-white-50">
+                    Oto Yıkama · Pasta Cila · Detailing
+                </small>
+
+            </div>
+
+        </div>
+    </footer>
+
+
+    <!-- IMAGE MODAL -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content bg-transparent border-0">
+                <div class="modal-body p-0 text-center">
+                    <img id="modalImage" src="" alt="Büyük galeri görseli" class="img-fluid rounded-4 shadow">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/script.js"></script>
+</body>
+
+</html>

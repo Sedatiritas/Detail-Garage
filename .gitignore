@@ -1,0 +1,17 @@
+
+# Gizli bilgiler
+.env
+.env.*
+
+# Bağımlılıklar
+node_modules/
+
+# Log dosyaları
+npm-debug.log*
+yarn-debug.log*
+*.log
+
+# İşletim sistemi ve editör dosyaları
+.DS_Store
+Thumbs.db
+.vscode/
