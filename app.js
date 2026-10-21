@@ -25,6 +25,7 @@ const notificationRoutes = require("./routes/notifications");
 const Visit = require("./models/Visit");
 const BeforeAfter = require("./models/BeforeAfter");
 const beforeAfterRoutes = require("./routes/beforeAfter");
+const csrfProtection = require("./middleware/csrfProtection");
 
 // --------------------------------------------------
 // VIEW ENGINE
@@ -63,6 +64,9 @@ app.use(
         }
     })
 );
+
+// Apply CSRF protection after sessions and before all application routes.
+app.use(csrfProtection);
 
 app.use(
     express.static(
