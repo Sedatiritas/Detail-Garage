@@ -11,7 +11,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/css/style.css?v=20261021-gallery-car">
+    <link rel="stylesheet" href="/css/style.css?v=20261021-interactive-car">
     <link rel="icon" href="<%= businessSettings.logoUrl || '/logo.png?v=2' %>">
 </head>
 
@@ -1362,6 +1362,150 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/script.js?v=20261021-ip-cooldown-persistent"></script>
+
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+
+const viewer = document.getElementById("galleryCarViewer");
+const canvas = document.getElementById("galleryCarCanvas");
+
+if (viewer && canvas) {
+  const scene = new THREE.Scene();
+  scene.background = null;
+
+  const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+  camera.position.set(5.8, 3.1, 7.2);
+  camera.lookAt(0, 0.45, 0);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  scene.add(new THREE.HemisphereLight(0xeaf4ff, 0x313843, 2.2));
+  const keyLight = new THREE.DirectionalLight(0xffffff, 3.2);
+  keyLight.position.set(4, 7, 5);
+  keyLight.castShadow = true;
+  scene.add(keyLight);
+  const rimLight = new THREE.DirectionalLight(0xc9f53d, 1.6);
+  rimLight.position.set(-5, 3, -4);
+  scene.add(rimLight);
+
+  const car = new THREE.Group();
+  scene.add(car);
+
+  const paint = new THREE.MeshPhysicalMaterial({ color: 0x8796a2, metalness: 0.78, roughness: 0.24, clearcoat: 1, clearcoatRoughness: 0.16 });
+  const dark = new THREE.MeshStandardMaterial({ color: 0x17212a, metalness: 0.35, roughness: 0.38 });
+  const glass = new THREE.MeshPhysicalMaterial({ color: 0x172b3a, metalness: 0.35, roughness: 0.12, transparent: true, opacity: 0.92 });
+  const lime = new THREE.MeshStandardMaterial({ color: 0xc9f53d, emissive: 0x34480a, metalness: 0.25, roughness: 0.3 });
+  const rubber = new THREE.MeshStandardMaterial({ color: 0x101215, roughness: 0.85 });
+  const alloy = new THREE.MeshStandardMaterial({ color: 0xb8c2ca, metalness: 0.85, roughness: 0.2 });
+
+  function addBox(parent, size, position, material, bevel = false) {
+    const geometry = new THREE.BoxGeometry(...size);
+    if (bevel) {
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.set(...position);
+      parent.add(mesh);
+      return mesh;
+    }
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(...position);
+    parent.add(mesh);
+    return mesh;
+  }
+
+  // Low, sporty coupe body and raised cabin.
+  addBox(car, [3.6, 0.48, 1.55], [0, 0.58, 0], paint);
+  addBox(car, [2.65, 0.22, 1.48], [0, 0.36, 0], dark);
+  const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.95, 0.72, 1.22), glass);
+  cabin.position.set(-0.18, 1.03, 0);
+  cabin.rotation.z = -0.07;
+  car.add(cabin);
+  addBox(car, [0.78, 0.08, 1.62], [1.28, 0.76, 0], paint);
+  addBox(car, [0.6, 0.09, 1.62], [-1.35, 0.72, 0], paint);
+  addBox(car, [0.12, 0.12, 1.48], [0.08, 0.78, 0], dark);
+  addBox(car, [0.26, 0.1, 1.59], [1.78, 0.57, 0], lime);
+  addBox(car, [0.2, 0.1, 1.59], [-1.78, 0.56, 0], lime);
+
+  // Four wheels with metallic hubs.
+  for (const x of [-1.15, 1.15]) {
+    for (const z of [-0.79, 0.79]) {
+      const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.22, 32), rubber);
+      wheel.rotation.x = Math.PI / 2;
+      wheel.position.set(x, 0.39, z);
+      car.add(wheel);
+      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.21, 0.235, 24), alloy);
+      hub.rotation.x = Math.PI / 2;
+      hub.position.set(x, 0.39, z * 1.01);
+      car.add(hub);
+      const center = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.24, 16), dark);
+      center.rotation.x = Math.PI / 2;
+      center.position.set(x, 0.39, z * 1.02);
+      car.add(center);
+    }
+  }
+
+  // Ground shadow.
+  const shadow = new THREE.Mesh(
+    new THREE.CircleGeometry(2.4, 48),
+    new THREE.MeshBasicMaterial({ color: 0x18212a, transparent: true, opacity: 0.12 })
+  );
+  shadow.rotation.x = -Math.PI / 2;
+  shadow.scale.set(1.35, 0.5, 1);
+  shadow.position.y = 0.015;
+  car.add(shadow);
+
+  let dragging = false;
+  let lastX = 0;
+  let lastY = 0;
+  let rotX = -0.08;
+  let rotY = -0.42;
+
+  function resize() {
+    const width = viewer.clientWidth || 280;
+    const height = viewer.clientHeight || 190;
+    renderer.setSize(width, height, false);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+  }
+
+  canvas.addEventListener("pointerdown", event => {
+    dragging = true;
+    lastX = event.clientX;
+    lastY = event.clientY;
+    canvas.classList.add("is-dragging");
+    canvas.setPointerCapture(event.pointerId);
+  });
+  canvas.addEventListener("pointermove", event => {
+    if (!dragging) return;
+    rotY += (event.clientX - lastX) * 0.012;
+    rotX += (event.clientY - lastY) * 0.006;
+    rotX = Math.max(-0.32, Math.min(0.32, rotX));
+    lastX = event.clientX;
+    lastY = event.clientY;
+  });
+  const stopDrag = () => { dragging = false; canvas.classList.remove("is-dragging"); };
+  canvas.addEventListener("pointerup", stopDrag);
+  canvas.addEventListener("pointercancel", stopDrag);
+  canvas.addEventListener("lostpointercapture", stopDrag);
+
+  const observer = new ResizeObserver(resize);
+  observer.observe(viewer);
+  resize();
+
+  function animate() {
+    requestAnimationFrame(animate);
+    if (!dragging) rotY += 0.002;
+    car.rotation.y = rotY;
+    car.rotation.x = rotX;
+    renderer.render(scene, camera);
+  }
+  animate();
+}
+</script>
+
 </body>
 
 </html>
