@@ -2301,6 +2301,54 @@ if (appointmentSubmitBtn) {
             <i class="bi bi-check-circle me-1"></i>
             Randevunuz başarıyla oluşturuldu
         `;
+
+        setTimeout(() => {
+            appointmentSubmitBtn.disabled = false;
+            appointmentSubmitBtn.classList.remove("btn-success");
+            appointmentSubmitBtn.classList.add("btn-dark");
+            appointmentSubmitBtn.innerHTML = `
+                Randevu Talebi Gönder
+                <i class="bi bi-arrow-right ms-1"></i>
+            `;
+        }, 5 * 60 * 1000);
+    }
+
+    if (params.get("error") === "rate-limit") {
+        appointmentSubmitBtn.disabled = true;
+        appointmentSubmitBtn.classList.remove("btn-dark");
+        appointmentSubmitBtn.classList.add("btn-warning");
+        appointmentSubmitBtn.innerHTML = `
+            <i class="bi bi-clock me-1"></i>
+            Bu IP adresinden 5 dakika içinde yeniden randevu oluşturulamaz
+        `;
+
+        setTimeout(() => {
+            appointmentSubmitBtn.disabled = false;
+            appointmentSubmitBtn.classList.remove("btn-warning");
+            appointmentSubmitBtn.classList.add("btn-dark");
+            appointmentSubmitBtn.innerHTML = `
+                Randevu Talebi Gönder
+                <i class="bi bi-arrow-right ms-1"></i>
+            `;
+        }, 5 * 60 * 1000);
+    }
+
+    if (params.get("error") === "too-fast") {
+        appointmentSubmitBtn.classList.remove("btn-dark");
+        appointmentSubmitBtn.classList.add("btn-warning");
+        appointmentSubmitBtn.innerHTML = `
+            <i class="bi bi-exclamation-circle me-1"></i>
+            Lütfen formu doldurup tekrar gönderin
+        `;
+
+        setTimeout(() => {
+            appointmentSubmitBtn.classList.remove("btn-warning");
+            appointmentSubmitBtn.classList.add("btn-dark");
+            appointmentSubmitBtn.innerHTML = `
+                Randevu Talebi Gönder
+                <i class="bi bi-arrow-right ms-1"></i>
+            `;
+        }, 3000);
     }
 
     if (params.get("error") === "slot-full") {
