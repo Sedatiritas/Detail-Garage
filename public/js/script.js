@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Aktif nav linkini bölüm bazlı güncelle
-  const sections = [...document.querySelectorAll('main section, #home')];
+  const sections = [...new Set(document.querySelectorAll('main section, #home, #beforeAfter'))];
   const sectionObserver = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
@@ -2379,8 +2379,18 @@ document
 
 
             showToast(
-                "Hakkımızda bilgileri başarıyla kaydedildi."
+                data.message || "Hakkımızda değişiklikleri başarıyla kaydedildi."
             );
+
+            const originalButtonHtml = button.dataset.originalHtml || button.innerHTML;
+            button.dataset.originalHtml = originalButtonHtml;
+            button.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Kaydedildi';
+            button.classList.add("about-save-success");
+
+            window.setTimeout(() => {
+                button.innerHTML = originalButtonHtml;
+                button.classList.remove("about-save-success");
+            }, 2200);
 
 
         } catch (error) {
@@ -2389,8 +2399,10 @@ document
 
             showToast(
                 error.message ||
-                "Hakkımızda bilgileri kaydedilirken hata oluştu."
+                "Hakkımızda değişiklikleri kaydedilemedi."
             );
+
+            button.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i> Tekrar Dene';
 
         } finally {
 
