@@ -1813,6 +1813,11 @@ body.login-page .login-message.show {
   display: block;
 }
 
+body.login-page .login-message.error {
+  background: #fff0f0;
+  color: #a32121;
+}
+
 /* MOBİL */
 
 @media (max-width: 575.98px) {
