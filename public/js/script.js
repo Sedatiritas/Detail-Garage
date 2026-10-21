@@ -721,12 +721,12 @@ if (appointmentTableBody) {
     // Panel açılır açılmaz güncel listeyi al.
     refreshAppointmentsTable();
 
-    // Daha kısa aralıkla kontrol et; no-store yanıtı her seferinde güncel veriyi getirir.
+    // Admin paneli açıkken randevuları 10 saniyede bir kontrol et.
     window.setInterval(() => {
         if (!document.hidden) {
             refreshAppointmentsTable();
         }
-    }, 3000);
+    }, 10000);
 
     // Kullanıcı sekmeye geri döndüğünde listeyi hemen güncelle.
     document.addEventListener("visibilitychange", () => {
