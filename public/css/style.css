@@ -108,18 +108,6 @@ img {
   user-select: none;
 }
 
-.hero-slide-1 {
-  background-image: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=2200&q=90');
-}
-
-.hero-slide-2 {
-  background-image: url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=2200&q=90');
-}
-
-.hero-slide-3 {
-  background-image: url('https://images.unsplash.com/photo-1504215680853-026ed2a45def?auto=format&fit=crop&w=2200&q=90');
-}
-
 .gallery-img {
   cursor: pointer;
   transition: transform 0.4s ease;
@@ -1741,35 +1729,6 @@ body.login-page .login-input .form-control {
   padding-left: 40px;
 }
 
-/* REMEMBER / ŞİFREMİ UNUTTUM */
-
-body.login-page .login-remember {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-
-  color: #727a75;
-  font-size: .68rem;
-
-  cursor: pointer;
-}
-
-body.login-page .login-remember input {
-  accent-color: var(--accent);
-}
-
-body.login-page .login-help {
-  color: #718014;
-  text-decoration: none;
-
-  font-size: .68rem;
-  font-weight: 700;
-}
-
-body.login-page .login-help:hover {
-  text-decoration: underline;
-}
-
 /* LOGIN BUTTON */
 
 body.login-page .login-submit {
@@ -1804,29 +1763,6 @@ body.login-page .login-message {
 
 body.login-page .login-message.show {
   display: block;
-}
-
-/* ALT KISIM */
-
-body.login-page .login-footer {
-  margin-top: 22px;
-  padding-top: 18px;
-
-  border-top: 1px solid var(--line);
-
-  text-align: center;
-}
-
-body.login-page .login-footer a {
-  color: #7c847f;
-  text-decoration: none;
-
-  font-size: .69rem;
-  font-weight: 700;
-}
-
-body.login-page .login-footer a:hover {
-  color: var(--dark);
 }
 
 /* MOBİL */
@@ -1954,5 +1890,4 @@ body.login-page .login-footer a:hover {
     padding: .35rem .65rem;
     font-size: .65rem;
   }
-
 }
