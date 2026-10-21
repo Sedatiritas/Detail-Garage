@@ -11,7 +11,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/css/style.css?v=20261021-services-car">
+    <link rel="stylesheet" href="/css/style.css?v=20261021-cleanup">
     <link rel="icon" href="<%= businessSettings.logoUrl || '/logo.png?v=2' %>">
 </head>
 
@@ -456,12 +456,7 @@
 
                 <div class="text-center mx-auto section-heading mb-5 reveal">
 
-                        <div class="services-car-viewer" id="servicesCarViewer" aria-label="3 boyutlu araba modeli. Mouse ile sürükleyerek döndürebilirsiniz.">
-                            <canvas id="servicesCarCanvas"></canvas>
-                            <span class="gallery-car-hint"><i class="bi bi-mouse"></i> Sürükleyerek döndür</span>
-                        </div>
-
-                    <span class="section-kicker">
+                        <span class="section-kicker">
                         YAPTIĞIMIZ İŞLER
                     </span>
 
@@ -1360,142 +1355,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/script.js?v=20261021-ip-cooldown-persistent"></script>
 
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
-  }
-}
-</script>
-<script type="module">
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
-import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js";
 
-const viewer = document.getElementById("servicesCarViewer");
-const canvas = document.getElementById("servicesCarCanvas");
-
-if (viewer && canvas) {
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
-  camera.position.set(5.8, 2.7, 7.5);
-  camera.lookAt(0, 0.65, 0);
-
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
-  renderer.setClearColor(0x000000, 0);
-
-  scene.add(new THREE.HemisphereLight(0xeaf4ff, 0x28303a, 2.1));
-  const keyLight = new THREE.DirectionalLight(0xffffff, 3.4);
-  keyLight.position.set(4, 7, 5);
-  scene.add(keyLight);
-  const fillLight = new THREE.DirectionalLight(0xd7e7ff, 2.0);
-  fillLight.position.set(-5, 3, 2);
-  scene.add(fillLight);
-  const rimLight = new THREE.DirectionalLight(0xc9f53d, 1.5);
-  rimLight.position.set(-2, 4, -5);
-  scene.add(rimLight);
-
-  const modelRoot = new THREE.Group();
-  scene.add(modelRoot);
-
-  const ground = new THREE.Mesh(
-    new THREE.CircleGeometry(2.9, 64),
-    new THREE.MeshBasicMaterial({ color: 0x4b5660, transparent: true, opacity: 0.09 })
-  );
-  ground.rotation.x = -Math.PI / 2;
-  ground.scale.set(1.5, 0.65, 1);
-  ground.position.y = 0.015;
-  scene.add(ground);
-
-  let dragging = false;
-  let lastX = 0;
-  let lastY = 0;
-  let rotX = 0.04;
-  let rotY = -0.6;
-  let modelReady = false;
-
-  const loader = new GLTFLoader();
-  loader.load(
-    "https://raw.githubusercontent.com/JaronKBragg7337/spectral-gt-rs/main/spectral_gt_rs_game_ready.glb",
-    gltf => {
-      const model = gltf.scene;
-      const box = new THREE.Box3().setFromObject(model);
-      const size = box.getSize(new THREE.Vector3());
-      const center = box.getCenter(new THREE.Vector3());
-      const maxDim = Math.max(size.x, size.y, size.z);
-      if (!Number.isFinite(maxDim) || maxDim <= 0) return;
-
-      model.position.sub(center);
-      model.scale.setScalar(4.2 / maxDim);
-      modelRoot.add(model);
-
-      const normalizedBox = new THREE.Box3().setFromObject(modelRoot);
-      const normalizedCenter = normalizedBox.getCenter(new THREE.Vector3());
-      modelRoot.position.x = -normalizedCenter.x;
-      modelRoot.position.y = -normalizedBox.min.y;
-      modelRoot.position.z = -normalizedCenter.z;
-
-      const normalizedSize = normalizedBox.getSize(new THREE.Vector3());
-      camera.position.set(normalizedSize.x * 1.35, normalizedSize.y * 1.15, normalizedSize.z * 1.7);
-      camera.lookAt(0, normalizedSize.y * 0.42, 0);
-      modelReady = true;
-    },
-    undefined,
-    error => {
-      console.error("3D araba modeli yüklenemedi:", error);
-      viewer.classList.add("car-model-error");
-      const hint = viewer.querySelector(".gallery-car-hint");
-      if (hint) hint.textContent = "3D model yüklenemedi. İnternet bağlantısını kontrol edin.";
-    }
-  );
-
-  function resize() {
-    const width = viewer.clientWidth || 320;
-    const height = viewer.clientHeight || 210;
-    renderer.setSize(width, height, false);
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-  }
-
-  canvas.addEventListener("pointerdown", event => {
-    dragging = true;
-    lastX = event.clientX;
-    lastY = event.clientY;
-    canvas.classList.add("is-dragging");
-    canvas.setPointerCapture(event.pointerId);
-  });
-  canvas.addEventListener("pointermove", event => {
-    if (!dragging) return;
-    rotY += (event.clientX - lastX) * 0.01;
-    rotX += (event.clientY - lastY) * 0.004;
-    rotX = Math.max(-0.18, Math.min(0.18, rotX));
-    lastX = event.clientX;
-    lastY = event.clientY;
-  });
-  const stopDrag = () => { dragging = false; canvas.classList.remove("is-dragging"); };
-  canvas.addEventListener("pointerup", stopDrag);
-  canvas.addEventListener("pointercancel", stopDrag);
-  canvas.addEventListener("lostpointercapture", stopDrag);
-
-  const observer = new ResizeObserver(resize);
-  observer.observe(viewer);
-  resize();
-
-  function animate() {
-    requestAnimationFrame(animate);
-    if (modelReady) {
-      if (!dragging) rotY += 0.0015;
-      modelRoot.rotation.y = rotY;
-      modelRoot.rotation.x = rotX;
-    }
-    renderer.render(scene, camera);
-  }
-  animate();
-}
-</script>
 
 </body>
 
