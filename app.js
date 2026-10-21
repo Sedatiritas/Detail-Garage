@@ -26,6 +26,7 @@ const Visit = require("./models/Visit");
 const BeforeAfter = require("./models/BeforeAfter");
 const beforeAfterRoutes = require("./routes/beforeAfter");
 const csrfProtection = require("./middleware/csrfProtection");
+const { getRemainingCooldown } = require("./utils/appointmentCooldown");
 
 // --------------------------------------------------
 // VIEW ENGINE
@@ -231,6 +232,7 @@ app.get("/", async (req, res) => {
 
         // SAYFAYI GÖNDER
         res.render("index", {
+            appointmentCooldownRemainingMs: getRemainingCooldown(req),
             services,
             galleries,
             gallerySettings,
