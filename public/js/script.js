@@ -2289,39 +2289,39 @@ showSection(location.hash.replace("#", "") || "dashboard", false);
 const appointmentSubmitBtn = document.getElementById("appointmentSubmitBtn");
 
 const params = new URLSearchParams(window.location.search);
+const appointmentCooldownRemainingMs = appointmentSubmitBtn
+    ? Number(appointmentSubmitBtn.dataset.cooldownRemaining || 0)
+    : 0;
 
 if (appointmentSubmitBtn) {
-
-    if (params.get("success") === "appointment") {
+    const showAppointmentSuccess = (remainingMs) => {
         appointmentSubmitBtn.disabled = true;
-        appointmentSubmitBtn.classList.remove("btn-dark");
+        appointmentSubmitBtn.classList.remove("btn-dark", "btn-warning");
         appointmentSubmitBtn.classList.add("btn-success");
-
         appointmentSubmitBtn.innerHTML = `
             <i class="bi bi-check-circle me-1"></i>
             Randevunuz başarıyla oluşturuldu
         `;
 
+        if (remainingMs > 0) {
+            setTimeout(() => {
+                appointmentSubmitBtn.disabled = false;
+                appointmentSubmitBtn.classList.remove("btn-success");
+                appointmentSubmitBtn.classList.add("btn-dark");
+                appointmentSubmitBtn.innerHTML = `
+                    Randevu Talebi Gönder
+                    <i class="bi bi-arrow-right ms-1"></i>
+                `;
+            }, remainingMs);
+        }
+    };
+
+    if (appointmentCooldownRemainingMs > 0) {
+        showAppointmentSuccess(appointmentCooldownRemainingMs);
     }
 
-    if (params.get("error") === "rate-limit") {
-        appointmentSubmitBtn.disabled = true;
-        appointmentSubmitBtn.classList.remove("btn-dark", "btn-success");
-        appointmentSubmitBtn.classList.add("btn-warning");
-        appointmentSubmitBtn.innerHTML = `
-            <i class="bi bi-clock me-1"></i>
-            Bu IP adresinden 5 dakika içinde yeniden randevu oluşturulamaz
-        `;
-
-        setTimeout(() => {
-            appointmentSubmitBtn.disabled = false;
-            appointmentSubmitBtn.classList.remove("btn-warning");
-            appointmentSubmitBtn.classList.add("btn-dark");
-            appointmentSubmitBtn.innerHTML = `
-                Randevu Talebi Gönder
-                <i class="bi bi-arrow-right ms-1"></i>
-            `;
-        }, 5 * 60 * 1000);
+    if (params.get("success") === "appointment") {
+        showAppointmentSuccess(appointmentCooldownRemainingMs || 5 * 60 * 1000);
     }
 
     if (params.get("error") === "slot-full") {
