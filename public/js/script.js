@@ -2304,6 +2304,26 @@ if (appointmentSubmitBtn) {
 
     }
 
+    if (params.get("error") === "rate-limit") {
+        appointmentSubmitBtn.disabled = true;
+        appointmentSubmitBtn.classList.remove("btn-dark", "btn-success");
+        appointmentSubmitBtn.classList.add("btn-warning");
+        appointmentSubmitBtn.innerHTML = `
+            <i class="bi bi-clock me-1"></i>
+            Bu IP adresinden 5 dakika içinde yeniden randevu oluşturulamaz
+        `;
+
+        setTimeout(() => {
+            appointmentSubmitBtn.disabled = false;
+            appointmentSubmitBtn.classList.remove("btn-warning");
+            appointmentSubmitBtn.classList.add("btn-dark");
+            appointmentSubmitBtn.innerHTML = `
+                Randevu Talebi Gönder
+                <i class="bi bi-arrow-right ms-1"></i>
+            `;
+        }, 5 * 60 * 1000);
+    }
+
     if (params.get("error") === "slot-full") {
         appointmentSubmitBtn.classList.remove("btn-dark");
         appointmentSubmitBtn.classList.add("btn-warning");
