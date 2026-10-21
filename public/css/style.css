@@ -1939,10 +1939,3 @@ body.login-page .login-message.show {
     font-size: .65rem;
   }
 }
-
-/* Admin: hakkımızda kaydetme durumu */
-.about-save-success {
-  background-color: #d7ff3f !important;
-  border-color: #d7ff3f !important;
-  color: #0a0d10 !important;
-}
