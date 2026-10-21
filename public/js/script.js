@@ -1,3 +1,30 @@
+// Attach the session CSRF token to all state-changing fetch requests.
+(() => {
+  const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+  if (!csrfMeta) return;
+
+  const csrfToken = csrfMeta.content;
+  const originalFetch = window.fetch.bind(window);
+  const unsafeMethods = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
+  window.fetch = (resource, options = {}) => {
+    const method = String(
+      options.method || (resource instanceof Request ? resource.method : "GET")
+    ).toUpperCase();
+
+    if (!unsafeMethods.has(method)) {
+      return originalFetch(resource, options);
+    }
+
+    const headers = new Headers(
+      options.headers || (resource instanceof Request ? resource.headers : undefined)
+    );
+    headers.set("X-CSRF-Token", csrfToken);
+
+    return originalFetch(resource, { ...options, method, headers });
+  };
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
   if (document.body.classList.contains('admin-page')) return;  const navbar = document.getElementById('mainNavbar');
   const navLinks = document.querySelectorAll('.navbar .nav-link');
