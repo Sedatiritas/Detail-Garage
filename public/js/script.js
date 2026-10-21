@@ -2313,6 +2313,24 @@ if (appointmentSubmitBtn) {
         }, 5 * 60 * 1000);
     }
 
+    if (params.get("error") === "csrf") {
+        appointmentSubmitBtn.classList.remove("btn-dark");
+        appointmentSubmitBtn.classList.add("btn-warning");
+        appointmentSubmitBtn.innerHTML = `
+            <i class="bi bi-shield-exclamation me-1"></i>
+            Güvenlik doğrulaması yenilendi, tekrar deneyin
+        `;
+
+        setTimeout(() => {
+            appointmentSubmitBtn.classList.remove("btn-warning");
+            appointmentSubmitBtn.classList.add("btn-dark");
+            appointmentSubmitBtn.innerHTML = `
+                Randevu Talebi Gönder
+                <i class="bi bi-arrow-right ms-1"></i>
+            `;
+        }, 4000);
+    }
+
     if (params.get("error") === "rate-limit") {
         appointmentSubmitBtn.disabled = true;
         appointmentSubmitBtn.classList.remove("btn-dark");
