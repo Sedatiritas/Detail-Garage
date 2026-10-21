@@ -156,6 +156,24 @@ img {
   user-select: none;
 }
 
+/* Decorative 3D-style car above the public gallery heading */
+.gallery-heading-car {
+  display: block;
+  width: min(280px, 70vw);
+  height: auto;
+  margin: -1.25rem 0 .35rem -.35rem;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 12px 14px rgba(10, 13, 16, .16));
+}
+
+@media (max-width: 767.98px) {
+  .gallery-heading-car {
+    width: min(210px, 62vw);
+    margin: -1rem 0 .25rem -.25rem;
+  }
+}
+
 .gallery-img {
   cursor: pointer;
   transition: transform 0.4s ease;
