@@ -1,53 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  if (document.body.classList.contains('admin-page')) {
-    const saveAboutButton = document.getElementById("saveAboutBtn");
-
-    saveAboutButton?.addEventListener("click", async () => {
-      const button = saveAboutButton;
-      const originalButtonHtml = button.dataset.originalHtml || button.innerHTML;
-      const formData = new FormData();
-
-      formData.append("title", document.getElementById("aboutTitle")?.value.trim() || "");
-      formData.append("description1", document.getElementById("aboutDescription1")?.value.trim() || "");
-      formData.append("description2", document.getElementById("aboutDescription2")?.value.trim() || "");
-      formData.append("experienceYears", document.getElementById("aboutExperienceYears")?.value.trim() || "");
-      formData.append("completedWorks", document.getElementById("aboutCompletedWorks")?.value.trim() || "");
-
-      const image = document.getElementById("aboutImage");
-      if (image?.files?.[0]) formData.append("image", image.files[0]);
-
-      button.dataset.originalHtml = originalButtonHtml;
-      button.disabled = true;
-      button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span> Kaydediliyor...';
-
-      try {
-        const response = await fetch("/about", { method: "PUT", body: formData });
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-          throw new Error(data.message || "Hakkımızda değişiklikleri kaydedilemedi.");
-        }
-
-        button.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Kaydedildi';
-        button.classList.add("about-save-success");
-        showToast(data.message || "Hakkımızda değişiklikleri başarıyla kaydedildi.");
-
-        window.setTimeout(() => {
-          button.innerHTML = originalButtonHtml;
-          button.classList.remove("about-save-success");
-        }, 2500);
-      } catch (error) {
-        console.error("Hakkımızda kaydetme hatası:", error);
-        button.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i> Tekrar Dene';
-        showToast(error.message || "Hakkımızda değişiklikleri kaydedilemedi.");
-      } finally {
-        button.disabled = false;
-      }
-    });
-
-    return;
-  }
-  const navbar = document.getElementById('mainNavbar');
+  if (document.body.classList.contains('admin-page')) return;  const navbar = document.getElementById('mainNavbar');
   const navLinks = document.querySelectorAll('.navbar .nav-link');
   const navbarCollapse = document.getElementById('navbarNav');
   const dateInput = document.getElementById('date');
