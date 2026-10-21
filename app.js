@@ -128,9 +128,6 @@ app.use(
 // --------------------------------------------------
 app.get("/", async (req, res) => {
     try {
-        // Form gönderiminin sunucu tarafındaki süre kontrolü için başlangıç zamanı.
-        req.session.appointmentFormOpenedAt = Date.now();
-
         // BUGÜNKÜ ZİYARETİ SAY
         const today = new Date().toLocaleDateString(
             "sv-SE",
