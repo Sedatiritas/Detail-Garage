@@ -661,7 +661,8 @@ img {
 
 @media (max-width: 767.98px) {
   .hero-section {
-    min-height: 630px;
+    height: 55svh;
+    min-height: 430px;
   }
 
   .section-padding {
