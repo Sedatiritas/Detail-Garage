@@ -125,6 +125,31 @@ router.post("/", async (req, res) => {
 
 
 // --------------------------------------------------
+// ADMIN PANELİ İÇİN RANDEVU LİSTESİ (YENİ VERİLERİ ÇEK)
+// --------------------------------------------------
+router.get("/admin/list", adminAuth, async (req, res) => {
+    try {
+        const appointments = await Appointment.find().sort({
+            date: -1,
+            time: -1,
+            createdAt: -1
+        });
+
+        return res.json({
+            success: true,
+            appointments
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Randevular alınırken bir hata oluştu."
+        });
+    }
+});
+
+
+// --------------------------------------------------
 // RANDEVU MÜSAİTLİK KONTROLÜ
 // --------------------------------------------------
 
