@@ -2,6 +2,13 @@ const mongoose = require("mongoose");
 
 const businessSettingSchema = new mongoose.Schema(
     {
+        // LOGO
+        logoUrl: {
+            type: String,
+            default: "/tamLogo.png",
+            trim: true
+        },
+
         // GOOGLE MAPS
         mapUrl: {
             type: String,
