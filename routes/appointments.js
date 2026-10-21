@@ -8,20 +8,6 @@ const {
     sendPushNotification
 } = require("./notifications");
 
-// IP başına başarılı randevu oluşturma aralığı.
-const APPOINTMENT_COOLDOWN_MS = 5 * 60 * 1000;
-const appointmentCooldowns = new Map();
-
-function getClientIp(req) {
-    return req.ip || req.socket.remoteAddress || "unknown";
-}
-
-function cleanupAppointmentCooldowns() {
-    const now = Date.now();
-    for (const [ip, expiresAt] of appointmentCooldowns) {
-        if (now >= expiresAt) appointmentCooldowns.delete(ip);
-    }
-}
 
 
 // --------------------------------------------------
@@ -31,22 +17,6 @@ function cleanupAppointmentCooldowns() {
 router.post("/", async (req, res) => {
 
     try {
-
-        const clientIp = getClientIp(req);
-        const cooldownUntil = appointmentCooldowns.get(clientIp);
-        cleanupAppointmentCooldowns();
-
-        if (cooldownUntil && Date.now() < cooldownUntil) {
-            return res.redirect("/?error=rate-limit#appointment");
-        }
-
-        // Gönderim süresi kontrolü: form en az 3 saniye önce açılmış olmalı.
-        const formOpenedAt = Number(req.session.appointmentFormOpenedAt);
-        const elapsedMs = Date.now() - formOpenedAt;
-
-        if (!Number.isFinite(formOpenedAt) || elapsedMs < 3000) {
-            return res.redirect("/?error=too-fast#appointment");
-        }
 
         const {
             name,
@@ -103,10 +73,6 @@ router.post("/", async (req, res) => {
 
 
         await appointment.save();
-
-        // Başarılı kayıt sonrası aynı IP için 5 dakikalık bekleme başlat.
-        appointmentCooldowns.set(clientIp, Date.now() + APPOINTMENT_COOLDOWN_MS);
-
 
         // --------------------------------------------------
         // ADMIN CİHAZLARINA BİLDİRİM GÖNDER
