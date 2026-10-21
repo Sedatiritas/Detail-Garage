@@ -2182,6 +2182,8 @@ function showToast(message) {
   }, 2600);
 }
 
+window.showToast = showToast;
+
 showSection(location.hash.replace("#", "") || "dashboard", false);
 
 })();
@@ -2379,31 +2381,19 @@ document
             }
 
 
-            showToast(
+            window.showToast(
                 data.message || "Hakkımızda değişiklikleri başarıyla kaydedildi."
             );
-
-            const originalButtonHtml = button.dataset.originalHtml || button.innerHTML;
-            button.dataset.originalHtml = originalButtonHtml;
-            button.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Kaydedildi';
-            button.classList.add("about-save-success");
-
-            window.setTimeout(() => {
-                button.innerHTML = originalButtonHtml;
-                button.classList.remove("about-save-success");
-            }, 2200);
 
 
         } catch (error) {
 
             console.error(error);
 
-            showToast(
+            window.showToast(
                 error.message ||
                 "Hakkımızda değişiklikleri kaydedilemedi."
             );
-
-            button.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i> Tekrar Dene';
 
         } finally {
 
