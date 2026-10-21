@@ -17,6 +17,12 @@ function csrfProtection(req, res, next) {
         return next();
     }
 
+    // Public appointment form: retain its original submission flow.
+    // Other state-changing routes remain protected by CSRF validation.
+    if (req.method === "POST" && req.path === "/appointments") {
+        return next();
+    }
+
     const submittedToken =
         req.get("x-csrf-token") ||
         (req.body && typeof req.body._csrf === "string" ? req.body._csrf : "");
