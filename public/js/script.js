@@ -193,9 +193,6 @@ if (dateInput && timeInput) {
 
 });
 
-function openImage(src) {
-  document.getElementById("modalImage").src = src;
-}
 
 /* =========================================================
    ADMIN PANEL JAVASCRIPT
