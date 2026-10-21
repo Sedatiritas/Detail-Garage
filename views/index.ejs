@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="<%= csrfToken %>">
     <meta name="description"
         content="Profesyonel oto yıkama, pasta cila ve araç detailing hizmetleri için randevu oluşturun." />
     <title>DO WAX CAR DETAİLİNG</title>
@@ -1045,6 +1046,7 @@
                             </p>
 
                             <form id="appointmentForm" class="row g-3" action="/appointments" method="POST">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
                                 <!-- AD SOYAD -->
                                 <div class="col-md-6">
@@ -1351,7 +1353,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/script.js"></script>
+    <script src="/js/script.js?v=20261021-csrf"></script>
 </body>
 
 </html>
