@@ -2837,110 +2837,56 @@ async function checkNotificationStatus() {
 }
 checkNotificationStatus();
 
-/* RANDEVU SİL */
+/* RANDEVU SİL — dinamik eklenen satırlar için event delegation */
 
-document
-    .querySelectorAll(".appointment-delete-btn")
-    .forEach(button => {
+document.addEventListener("click", async event => {
+    const button = event.target.closest(".appointment-delete-btn");
+    if (!button) return;
 
-        button.addEventListener("click", async () => {
+    const appointmentId = button.dataset.id;
+    if (!appointmentId) return;
 
-            const appointmentId =
-                button.dataset.id;
+    const confirmed = confirm(
+        "Bu randevuyu silmek istediğinize emin misiniz?\n\nBu işlem geri alınamaz."
+    );
+    if (!confirmed) return;
 
-            if (!appointmentId) {
-                return;
-            }
-
-            const confirmed = confirm(
-                "Bu randevuyu silmek istediğinize emin misiniz?\n\nBu işlem geri alınamaz."
-            );
-
-            if (!confirmed) {
-                return;
-            }
-
-            try {
-
-                button.disabled = true;
-
-                const response = await fetch(
-                    `/appointments/${appointmentId}`,
-                    {
-                        method: "DELETE"
-                    }
-                );
-
-                const data = await response.json();
-
-                if (!response.ok || !data.success) {
-
-                    throw new Error(
-                        data.message ||
-                        "Randevu silinemedi."
-                    );
-
-                }
-
-                const row =
-                    button.closest("tr");
-
-                row?.remove();
-
-                showToast(
-                    "Randevu başarıyla silindi."
-                );
-
-                /*
-                 * Tabloda hiç randevu kalmadıysa
-                 * boş durum mesajını göster
-                 */
-                const tbody =
-                    document.querySelector(
-                        "#appointments tbody"
-                    );
-
-                if (
-                    tbody &&
-                    !tbody.querySelector(
-                        "tr[data-appointment-id]"
-                    )
-                ) {
-
-                    tbody.innerHTML = `
-                        <tr>
-                            <td
-                                colspan="7"
-                                class="text-center py-5 text-secondary"
-                            >
-                                <i
-                                    class="bi bi-calendar-x d-block fs-3 mb-2"
-                                ></i>
-                                Henüz randevu bulunmuyor.
-                            </td>
-                        </tr>
-                    `;
-
-                }
-
-            } catch (error) {
-
-                console.error(error);
-
-                showToast(
-                    error.message ||
-                    "Randevu silinirken hata oluştu."
-                );
-
-            } finally {
-
-                button.disabled = false;
-
-            }
-
+    try {
+        button.disabled = true;
+        const response = await fetch(`/appointments/${appointmentId}`, {
+            method: "DELETE"
         });
+        const data = await response.json();
 
-    });
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Randevu silinemedi.");
+        }
+
+        button.closest("tr")?.remove();
+        showToast("Randevu başarıyla silindi.");
+
+        const tbody = document.querySelector("#appointments tbody");
+        if (tbody && !tbody.querySelector("tr[data-appointment-id]")) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-secondary">
+                        <i class="bi bi-calendar-x d-block fs-3 mb-2"></i>
+                        Henüz randevu bulunmuyor.
+                    </td>
+                </tr>
+            `;
+        }
+
+        applyAppointmentFilters();
+    } catch (error) {
+        console.error(error);
+        showToast(error.message || "Randevu silinirken hata oluştu.");
+    } finally {
+        button.disabled = false;
+    }
+});
+
+
 /* ========================================
    PUBLIC BEFORE / AFTER SLIDER
 ======================================== */
