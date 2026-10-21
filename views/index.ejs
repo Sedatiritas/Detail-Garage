@@ -1138,7 +1138,7 @@
                                 </div>
 
                                 <!-- GÖNDER -->
-                                <button type="submit" id="appointmentSubmitBtn"
+                                <button type="submit" id="appointmentSubmitBtn" data-cooldown-remaining="<%= appointmentCooldownRemainingMs || 0 %>"
                                     class="btn btn-dark rounded-pill px-4 py-3" <%=businessSettings.appointmentsOpen
                                     ? "" : "disabled" %>
                                     >
@@ -1353,7 +1353,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/script.js?v=20261021-ip-cooldown"></script>
+    <script src="/js/script.js?v=20261021-ip-cooldown-persistent"></script>
 </body>
 
 </html>
