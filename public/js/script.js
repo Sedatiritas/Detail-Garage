@@ -508,136 +508,220 @@ if (adminAppointmentForm) {
     }
 }
 
-/* Randevu durum değişiklikleri */
+/* Randevu durum değişiklikleri — dinamik satırlar için event delegation */
 
-document.querySelectorAll(".appointment-action").forEach(button => {
+document.addEventListener("click", async event => {
+    const clickedButton = event.target.closest(".appointment-action");
+    if (!clickedButton) return;
 
-    button.addEventListener("click", async event => {
+    const appointmentId = clickedButton.dataset.id;
+    const newStatus = clickedButton.dataset.action;
+    const row = clickedButton.closest("tr");
+    const badge = row?.querySelector(".badge-soft");
 
-        const clickedButton = event.currentTarget;
+    if (!appointmentId || !newStatus || !row || !badge) return;
 
-        const appointmentId = clickedButton.dataset.id;
-        const newStatus = clickedButton.dataset.action;
+    try {
+        clickedButton.disabled = true;
 
-        const row = clickedButton.closest("tr");
-        const badge = row?.querySelector(".badge-soft");
+        const response = await fetch(`/appointments/${appointmentId}/status`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: newStatus })
+        });
+        const data = await response.json();
 
-        if (!appointmentId || !newStatus || !row || !badge) {
-            return;
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Randevu güncellenemedi.");
         }
 
-        try {
-
-            clickedButton.disabled = true;
-
-            const response = await fetch(
-                `/appointments/${appointmentId}/status`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        status: newStatus
-                    })
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok || !data.success) {
-                throw new Error(
-                    data.message || "Randevu güncellenemedi."
-                );
-            }
-
-            const statusInfo = statusMap[newStatus];
-
-            badge.textContent = statusInfo.text;
-            badge.className = `badge-soft ${statusInfo.className}`;
-
-            row.dataset.status = newStatus;
-
-            applyAppointmentFilters();
-
-            showToast("Randevu durumu güncellendi.");
-
-        } catch (error) {
-
-            console.error(error);
-
-            showToast(
-                error.message || "Randevu güncellenirken hata oluştu."
-            );
-
-        } finally {
-
-            clickedButton.disabled = false;
-
-        }
-
-    });
-
+        const statusInfo = statusMap[newStatus];
+        badge.textContent = statusInfo.text;
+        badge.className = `badge-soft ${statusInfo.className}`;
+        row.dataset.status = newStatus;
+        applyAppointmentFilters();
+        showToast("Randevu durumu güncellendi.");
+    } catch (error) {
+        console.error(error);
+        showToast(error.message || "Randevu güncellenirken hata oluştu.");
+    } finally {
+        clickedButton.disabled = false;
+    }
 });
+
+
+/* Randevu tablosunu sunucudaki güncel verilerle eşitle */
+
+const appointmentTableBody = document.querySelector("#appointments tbody");
+
+function appointmentStatusInfo(status) {
+    const map = {
+        pending: { text: "Bekliyor", className: "badge-warning" },
+        confirmed: { text: "Onaylandı", className: "badge-success" },
+        rejected: { text: "Reddedildi", className: "badge-danger" },
+        completed: { text: "Tamamlandı", className: "badge-success" }
+    };
+    return map[status] || map.pending;
+}
+
+function createAppointmentRow(appointment) {
+    const row = document.createElement("tr");
+    row.dataset.appointmentId = appointment._id;
+    row.dataset.status = appointment.status || "pending";
+    row.dataset.date = appointment.date || "";
+
+    const dateLabel = appointment.date
+        ? new Date(`${appointment.date}T00:00:00`).toLocaleDateString("tr-TR", {
+            day: "2-digit",
+            month: "short"
+        })
+        : "—";
+    const status = appointmentStatusInfo(appointment.status);
+
+    row.innerHTML = `
+        <td><strong class="appointment-customer-name"></strong><span class="sub-text appointment-customer-phone"></span></td>
+        <td class="appointment-vehicle"></td>
+        <td class="appointment-service"></td>
+        <td><span class="appointment-date"></span> · <span class="appointment-time"></span></td>
+        <td class="appointment-message"></td>
+        <td><span class="badge-soft ${status.className}">${status.text}</span></td>
+        <td class="text-end">
+            <div class="d-inline-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="table-action" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="İşlemler">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end appointment-menu shadow-sm">
+                        <li><button type="button" class="dropdown-item appointment-action" data-action="confirmed"><i class="bi bi-check2-circle text-success me-2"></i>Onayla</button></li>
+                        <li><button type="button" class="dropdown-item appointment-action" data-action="rejected"><i class="bi bi-x-circle text-danger me-2"></i>Reddet</button></li>
+                        <li><button type="button" class="dropdown-item appointment-action" data-action="completed"><i class="bi bi-check-lg me-2"></i>Tamamlandı</button></li>
+                    </ul>
+                </div>
+                <button type="button" class="table-action text-danger appointment-delete-btn" title="Randevuyu sil" aria-label="Randevuyu sil">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </td>
+    `;
+
+    row.querySelector(".appointment-customer-name").textContent = appointment.name || "";
+    row.querySelector(".appointment-customer-phone").textContent = appointment.phone || "";
+    row.querySelector(".appointment-vehicle").textContent = appointment.vehicle || "";
+    row.querySelector(".appointment-service").textContent = appointment.service || "";
+    row.querySelector(".appointment-date").textContent = dateLabel;
+    row.querySelector(".appointment-time").textContent = appointment.time || "";
+    row.querySelector(".appointment-message").textContent = appointment.message || "—";
+
+    row.querySelectorAll(".appointment-action").forEach(button => {
+        button.dataset.id = appointment._id;
+    });
+    row.querySelector(".appointment-delete-btn").dataset.id = appointment._id;
+
+    return row;
+}
+
+function updateAppointmentRow(row, appointment) {
+    const status = appointmentStatusInfo(appointment.status);
+    const badge = row.querySelector(".badge-soft");
+    if (badge) {
+        badge.textContent = status.text;
+        badge.className = `badge-soft ${status.className}`;
+    }
+    row.dataset.status = appointment.status || "pending";
+    row.dataset.date = appointment.date || "";
+}
+
+async function refreshAppointmentsTable() {
+    if (!appointmentTableBody) return;
+
+    try {
+        const response = await fetch("/appointments/admin/list", {
+            headers: { "Accept": "application/json" },
+            cache: "no-store"
+        });
+        if (!response.ok) return;
+
+        const data = await response.json();
+        if (!data.success || !Array.isArray(data.appointments)) return;
+
+        const emptyRow = appointmentTableBody.querySelector("tr:not([data-appointment-id])");
+        const serverIds = new Set(data.appointments.map(item => String(item._id)));
+
+        data.appointments.forEach(appointment => {
+            const id = String(appointment._id);
+            let row = appointmentTableBody.querySelector(`tr[data-appointment-id="${id}"]`);
+
+            if (!row) {
+                row = createAppointmentRow(appointment);
+                appointmentTableBody.prepend(row);
+            } else {
+                updateAppointmentRow(row, appointment);
+            }
+        });
+
+        appointmentTableBody.querySelectorAll("tr[data-appointment-id]").forEach(row => {
+            if (!serverIds.has(String(row.dataset.appointmentId))) row.remove();
+        });
+
+        if (emptyRow && appointmentTableBody.querySelector("tr[data-appointment-id]")) {
+            emptyRow.remove();
+        } else if (!appointmentTableBody.querySelector("tr[data-appointment-id]")) {
+            appointmentTableBody.innerHTML = `
+                <tr><td colspan="7" class="text-center py-5 text-secondary">
+                    <i class="bi bi-calendar-x d-block fs-3 mb-2"></i>
+                    Henüz randevu bulunmuyor.
+                </td></tr>
+            `;
+        }
+
+        applyAppointmentFilters();
+    } catch (error) {
+        console.error("Randevu listesi yenilenemedi:", error);
+    }
+}
+
 
 /* Yeni randevu formu */
 
 document.getElementById("appointmentForm")?.addEventListener("submit", async event => {
-
     event.preventDefault();
 
     const form = event.currentTarget;
     const submitButton = form.querySelector('button[type="submit"]');
 
     try {
-
         submitButton.disabled = true;
-
         const formData = new FormData(form);
-
         const response = await fetch("/appointments/admin", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: new URLSearchParams(formData)
         });
-
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-            throw new Error(
-                data.message || "Randevu oluşturulamadı."
-            );
+            throw new Error(data.message || "Randevu oluşturulamadı.");
         }
 
-        const modalEl = document.getElementById("appointmentModal");
-
-        bootstrap.Modal.getInstance(modalEl)?.hide();
-
+        bootstrap.Modal.getInstance(document.getElementById("appointmentModal"))?.hide();
         form.reset();
-
+        await refreshAppointmentsTable();
         showToast("Yeni randevu başarıyla oluşturuldu.");
-
-        setTimeout(() => {
-            window.location.href = "/admin#appointments";
-        }, 700);
-
     } catch (error) {
-
         console.error(error);
-
-        showToast(
-            error.message || "Randevu oluşturulurken hata oluştu."
-        );
-
+        showToast(error.message || "Randevu oluşturulurken hata oluştu.");
     } finally {
-
         submitButton.disabled = false;
-
     }
-
 });
+
+
+/* Admin paneli açıkken yeni müşteri randevularını da kontrol et */
+if (appointmentTableBody) {
+    refreshAppointmentsTable();
+    window.setInterval(refreshAppointmentsTable, 10000);
+}
+
 
 /* Hizmet modalı */
 
