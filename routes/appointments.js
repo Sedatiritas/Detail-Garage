@@ -8,20 +8,7 @@ const {
     sendPushNotification
 } = require("./notifications");
 
-// Başarılı randevudan sonra IP başına 5 dakika bekleme.
-const APPOINTMENT_COOLDOWN_MS = 5 * 60 * 1000;
-const appointmentCooldowns = new Map();
-
-function getClientIp(req) {
-    return req.ip || req.socket.remoteAddress || "unknown";
-}
-
-function cleanupAppointmentCooldowns() {
-    const now = Date.now();
-    for (const [ip, expiresAt] of appointmentCooldowns) {
-        if (now >= expiresAt) appointmentCooldowns.delete(ip);
-    }
-}
+const { getRemainingCooldown, startCooldown } = require("../utils/appointmentCooldown");
 
 
 
@@ -33,12 +20,8 @@ router.post("/", async (req, res) => {
 
     try {
 
-        cleanupAppointmentCooldowns();
-        const clientIp = getClientIp(req);
-        const cooldownUntil = appointmentCooldowns.get(clientIp);
-
-        if (cooldownUntil && Date.now() < cooldownUntil) {
-            return res.redirect("/?error=rate-limit#appointment");
+        if (getRemainingCooldown(req) > 0) {
+            return res.redirect("/?success=appointment#appointment");
         }
 
         const {
@@ -97,10 +80,7 @@ router.post("/", async (req, res) => {
 
         await appointment.save();
 
-        appointmentCooldowns.set(
-            clientIp,
-            Date.now() + APPOINTMENT_COOLDOWN_MS
-        );
+        startCooldown(req);
 
         // --------------------------------------------------
         // ADMIN CİHAZLARINA BİLDİRİM GÖNDER
