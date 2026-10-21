@@ -2481,9 +2481,16 @@ document.getElementById("loginForm")?.addEventListener("submit", async (event) =
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
+    const showMessage = (text, isError = false) => {
+        message.textContent = text;
+        message.classList.add("show");
+        message.classList.toggle("error", isError);
+        message.setAttribute("role", isError ? "alert" : "status");
+    };
+
     try {
         button.disabled = true;
-        message.textContent = "Giriş yapılıyor...";
+        showMessage("Giriş yapılıyor...");
 
         const response = await fetch("/admin/login", {
             method: "POST",
@@ -2499,13 +2506,14 @@ document.getElementById("loginForm")?.addEventListener("submit", async (event) =
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-            throw new Error(data.message || "Giriş başarısız.");
+            showMessage(data.message || "E-posta veya şifre hatalı.", true);
+            return;
         }
 
         window.location.href = "/admin";
 
     } catch (error) {
-        message.textContent = error.message;
+        showMessage("Giriş sırasında bir hata oluştu. Lütfen tekrar deneyin.", true);
     } finally {
         button.disabled = false;
     }
