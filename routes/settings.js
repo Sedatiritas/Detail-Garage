@@ -21,7 +21,7 @@ const logoUpload = multer({
     }),
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
-        const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/svg+xml"];
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
         if (!allowedTypes.includes(file.mimetype)) {
             return cb(new Error("Logo için JPG, PNG, WEBP veya SVG dosyası seçin."));
         }
