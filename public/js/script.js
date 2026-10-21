@@ -716,10 +716,26 @@ document.getElementById("appointmentForm")?.addEventListener("submit", async eve
 });
 
 
-/* Admin paneli açıkken yeni müşteri randevularını da kontrol et */
+/* Admin paneli açıkken yeni randevuları düzenli kontrol et */
 if (appointmentTableBody) {
+    // Panel açılır açılmaz güncel listeyi al.
     refreshAppointmentsTable();
-    window.setInterval(refreshAppointmentsTable, 10000);
+
+    // Daha kısa aralıkla kontrol et; no-store yanıtı her seferinde güncel veriyi getirir.
+    window.setInterval(() => {
+        if (!document.hidden) {
+            refreshAppointmentsTable();
+        }
+    }, 3000);
+
+    // Kullanıcı sekmeye geri döndüğünde listeyi hemen güncelle.
+    document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+            refreshAppointmentsTable();
+        }
+    });
+
+    window.addEventListener("focus", refreshAppointmentsTable);
 }
 
 
