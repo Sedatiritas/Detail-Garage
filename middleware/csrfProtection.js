@@ -28,6 +28,16 @@ function csrfProtection(req, res, next) {
         submittedToken.length !== expected.length ||
         !crypto.timingSafeEqual(Buffer.from(submittedToken), Buffer.from(expected))
     ) {
+        // Native appointment form submissions should return to the form instead of
+        // displaying a raw JSON error page. API/AJAX requests keep the JSON response.
+        const acceptsHtml = req.method === "POST" &&
+            req.is("application/x-www-form-urlencoded") &&
+            req.get("accept")?.includes("text/html");
+
+        if (acceptsHtml) {
+            return res.redirect("/?error=csrf#appointment");
+        }
+
         return res.status(403).json({
             success: false,
             message: "Güvenlik doğrulaması başarısız. Sayfayı yenileyip tekrar deneyin."
