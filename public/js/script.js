@@ -644,324 +644,239 @@ document.getElementById("appointmentForm")?.addEventListener("submit", async eve
 const serviceModal = document.getElementById("serviceModal");
 const serviceForm = document.getElementById("serviceForm");
 const serviceDeleteBtn = document.getElementById("serviceDeleteBtn");
+const serviceGrid = document.querySelector("#services .section-toolbar + .row.g-4");
+
+
+/* HİZMET KARTI OLUŞTUR */
+function createServiceCard(service, index) {
+    const column = document.createElement("div");
+    column.className = "col-md-6 col-xl-3";
+
+    const card = document.createElement("div");
+    card.className = "service-admin-card";
+    card.dataset.serviceId = service._id;
+
+    card.innerHTML = `
+        <div class="service-admin-top">
+            <div class="service-admin-icon">
+                <i class="bi bi-stars"></i>
+            </div>
+            <span class="status-pill"></span>
+        </div>
+        <span class="service-no"></span>
+        <h3></h3>
+        <p></p>
+        <div class="service-admin-bottom">
+            <strong></strong>
+            <button class="table-action edit-service-btn" type="button"
+                data-bs-toggle="modal" data-bs-target="#serviceModal" data-mode="edit">
+                <i class="bi bi-pencil"></i>
+            </button>
+        </div>
+    `;
+
+    card.querySelector(".status-pill").textContent =
+        service.status === "active" ? "Yayında" : "Pasif";
+    card.querySelector(".status-pill").classList.toggle(
+        "active",
+        service.status === "active"
+    );
+    card.querySelector(".service-no").textContent =
+        String(index + 1).padStart(2, "0");
+    card.querySelector("h3").textContent = service.name || "";
+    card.querySelector("p").textContent = service.description || "";
+    card.querySelector(".service-admin-bottom strong").textContent =
+        `₺${Number(service.price || 0).toLocaleString("tr-TR")}`;
+
+    const editButton = card.querySelector(".edit-service-btn");
+    editButton.dataset.id = service._id;
+
+    column.appendChild(card);
+    return column;
+}
+
+
+/* HİZMET NUMARALARINI YENİLE */
+function refreshServiceNumbers() {
+    if (!serviceGrid) return;
+
+    serviceGrid.querySelectorAll(".service-admin-card").forEach((card, index) => {
+        const number = card.querySelector(".service-no");
+        if (number) number.textContent = String(index + 1).padStart(2, "0");
+    });
+}
+
+
+/* BOŞ HİZMET DURUMU */
+function showEmptyServicesState() {
+    if (!serviceGrid || serviceGrid.querySelector(".service-admin-card")) return;
+
+    const emptyColumn = document.createElement("div");
+    emptyColumn.className = "col-12";
+    emptyColumn.innerHTML = `
+        <div class="panel-card text-center py-5">
+            <i class="bi bi-stars fs-1 text-secondary d-block mb-3"></i>
+            <h3 class="h5">Henüz hizmet eklenmemiş</h3>
+            <p class="text-secondary mb-0">
+                İlk hizmetinizi eklemek için "Hizmet Ekle" butonunu kullanın.
+            </p>
+        </div>
+    `;
+    serviceGrid.appendChild(emptyColumn);
+}
 
 
 /* MODAL AÇILINCA */
-
 serviceModal?.addEventListener("show.bs.modal", event => {
-
     const trigger = event.relatedTarget;
-
     const mode = trigger?.dataset.mode || "add";
     const serviceId = trigger?.dataset.id || "";
-
     const title = document.getElementById("serviceModalTitle");
 
     serviceForm.dataset.mode = mode;
     serviceForm.dataset.id = serviceId;
 
-
-    // Sil butonunu göster / gizle
-    serviceDeleteBtn?.classList.toggle(
-        "d-none",
-        mode !== "edit"
-    );
-
+    serviceDeleteBtn?.classList.toggle("d-none", mode !== "edit");
 
     if (mode === "edit") {
-
         title.textContent = "Hizmeti Düzenle";
 
         const card = trigger?.closest(".service-admin-card");
-
-        const cardName =
-            card?.querySelector("h3")?.textContent.trim() || "";
-
-        const cardDescription =
-            card?.querySelector("p")?.textContent.trim() || "";
-
-        const cardPrice =
-            card?.querySelector(".service-admin-bottom strong")
-                ?.textContent
-                .replace("₺", "")
-                .replace(/\./g, "")
-                .trim() || "";
-
-
         document.getElementById("serviceName").value =
-            cardName;
-
+            card?.querySelector("h3")?.textContent.trim() || "";
         document.getElementById("serviceDescription").value =
-            cardDescription;
-
+            card?.querySelector("p")?.textContent.trim() || "";
         document.getElementById("servicePrice").value =
-            cardPrice;
+            (card?.querySelector(".service-admin-bottom strong")?.textContent || "")
+                .replace("₺", "").replace(/\./g, "").trim();
 
         document.getElementById("serviceStatus").value =
-            "active";
-
-
+            card?.querySelector(".status-pill")?.textContent.trim() === "Pasif"
+                ? "inactive"
+                : "active";
     } else {
-
         title.textContent = "Hizmet Ekle";
-
         serviceForm.reset();
-
         serviceForm.dataset.mode = "add";
         serviceForm.dataset.id = "";
-
     }
-
 });
 
 
 /* HİZMET EKLE / DÜZENLE */
-
 serviceForm?.addEventListener("submit", async event => {
-
     event.preventDefault();
 
-
-    const mode =
-        serviceForm.dataset.mode || "add";
-
-    const serviceId =
-        serviceForm.dataset.id;
-
-
-    const name =
-        document.getElementById("serviceName")
-            .value.trim();
-
-    const description =
-        document.getElementById("serviceDescription")
-            .value.trim();
-
-    const price =
-        Number(
-            document.getElementById("servicePrice")
-                .value
-        );
-
-    const status =
-        document.getElementById("serviceStatus")
-            .value;
-
+    const mode = serviceForm.dataset.mode || "add";
+    const serviceId = serviceForm.dataset.id;
+    const name = document.getElementById("serviceName").value.trim();
+    const description = document.getElementById("serviceDescription").value.trim();
+    const price = Number(document.getElementById("servicePrice").value);
+    const status = document.getElementById("serviceStatus").value;
 
     if (!name || !description || !price) {
-
         showToast("Lütfen tüm alanları doldurun.");
-
         return;
-
     }
 
-
-    const submitButton =
-        serviceForm.querySelector(
-            'button[type="submit"]'
-        );
-
+    const submitButton = serviceForm.querySelector('button[type="submit"]');
 
     try {
-
         submitButton.disabled = true;
 
+        const response = await fetch(
+            mode === "edit" ? `/services/${serviceId}` : "/services",
+            {
+                method: mode === "edit" ? "PUT" : "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name,
+                    description,
+                    price,
+                    status,
+                    icon: "bi-stars"
+                })
+            }
+        );
 
-        let response;
-
-
-        // DÜZENLE
-        if (mode === "edit") {
-
-            response = await fetch(
-                `/services/${serviceId}`,
-                {
-                    method: "PUT",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        name,
-                        description,
-                        price,
-                        status,
-                        icon: "bi-stars"
-                    })
-                }
-            );
-
-
-        // EKLE
-        } else {
-
-            response = await fetch(
-                "/services",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        name,
-                        description,
-                        price,
-                        status,
-                        icon: "bi-stars"
-                    })
-                }
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
+        const data = await response.json();
 
         if (!response.ok || !data.success) {
-
-            throw new Error(
-                data.message ||
-                "İşlem gerçekleştirilemedi."
-            );
-
+            throw new Error(data.message || "İşlem gerçekleştirilemedi.");
         }
 
+        if (!serviceGrid || !data.service) {
+            throw new Error("Hizmet kaydedildi ancak liste güncellenemedi. Lütfen sayfayı yenileyin.");
+        }
 
-        bootstrap.Modal.getInstance(
-            document.getElementById("serviceModal")
-        )?.hide();
-
-
-        showToast(
-            mode === "edit"
-                ? "Hizmet başarıyla güncellendi."
-                : "Hizmet başarıyla eklendi."
+        const existingCard = serviceGrid.querySelector(
+            `.service-admin-card[data-service-id="${serviceId}"]`
         );
 
+        if (mode === "edit" && existingCard) {
+            const updatedColumn = createServiceCard(data.service, 0);
+            existingCard.closest(".col-md-6")?.replaceWith(updatedColumn);
+            // Kolonun sınıfını mevcut tasarımla aynı tut.
+            updatedColumn.className = "col-md-6 col-xl-3";
+        } else {
+            serviceGrid.querySelector(".col-12")?.remove();
+            serviceGrid.appendChild(
+                createServiceCard(data.service, serviceGrid.querySelectorAll(".service-admin-card").length)
+            );
+        }
 
-        setTimeout(() => {
+        refreshServiceNumbers();
 
-            window.location.href =
-                "/admin#services";
-
-        }, 700);
-
+        bootstrap.Modal.getInstance(serviceModal)?.hide();
+        showToast(mode === "edit"
+            ? "Hizmet başarıyla güncellendi."
+            : "Hizmet başarıyla eklendi.");
 
     } catch (error) {
-
         console.error(error);
-
-        showToast(
-            error.message ||
-            "Hizmet kaydedilirken bir hata oluştu."
-        );
-
-
+        showToast(error.message || "Hizmet kaydedilirken bir hata oluştu.");
     } finally {
-
         submitButton.disabled = false;
-
     }
-
 });
 
 
 /* HİZMET SİL */
+serviceDeleteBtn?.addEventListener("click", async () => {
+    const serviceId = serviceForm.dataset.id;
+    if (!serviceId) return;
 
-serviceDeleteBtn?.addEventListener(
-    "click",
-    async () => {
+    if (!confirm("Bu hizmeti silmek istediğinize emin misiniz?")) return;
 
-        const serviceId =
-            serviceForm.dataset.id;
+    try {
+        serviceDeleteBtn.disabled = true;
 
+        const response = await fetch(`/services/${serviceId}`, {
+            method: "DELETE"
+        });
+        const data = await response.json();
 
-        if (!serviceId) {
-            return;
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Hizmet silinemedi.");
         }
 
+        serviceGrid?.querySelector(
+            `.service-admin-card[data-service-id="${serviceId}"]`
+        )?.closest(".col-md-6")?.remove();
 
-        const confirmed =
-            confirm(
-                "Bu hizmeti silmek istediğinize emin misiniz?"
-            );
+        refreshServiceNumbers();
+        showEmptyServicesState();
 
+        bootstrap.Modal.getInstance(serviceModal)?.hide();
+        showToast("Hizmet başarıyla silindi.");
 
-        if (!confirmed) {
-            return;
-        }
-
-
-        try {
-
-            serviceDeleteBtn.disabled = true;
-
-
-            const response =
-                await fetch(
-                    `/services/${serviceId}`,
-                    {
-                        method: "DELETE"
-                    }
-                );
-
-
-            const data =
-                await response.json();
-
-
-            if (!response.ok || !data.success) {
-
-                throw new Error(
-                    data.message ||
-                    "Hizmet silinemedi."
-                );
-
-            }
-
-
-            bootstrap.Modal.getInstance(
-                document.getElementById("serviceModal")
-            )?.hide();
-
-
-            showToast(
-                "Hizmet başarıyla silindi."
-            );
-
-
-            setTimeout(() => {
-
-                window.location.href =
-                    "/admin#services";
-
-            }, 700);
-
-
-        } catch (error) {
-
-            console.error(error);
-
-            showToast(
-                error.message ||
-                "Hizmet silinirken bir hata oluştu."
-            );
-
-
-        } finally {
-
-            serviceDeleteBtn.disabled = false;
-
-        }
-
+    } catch (error) {
+        console.error(error);
+        showToast(error.message || "Hizmet silinirken hata oluştu.");
+    } finally {
+        serviceDeleteBtn.disabled = false;
     }
-);
+});
 
 
 /* İŞLETME AYARLARI */
