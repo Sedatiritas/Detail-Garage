@@ -352,6 +352,9 @@ function applyAppointmentFilters() {
     }
 }
 
+// Randevu silme gibi dosyanın diğer bölümlerinden de filtreleri çağırabilmek için dışa aç.
+window.applyAppointmentFilters = applyAppointmentFilters;
+
 
 // Arama
 appointmentSearch?.addEventListener(
@@ -2928,7 +2931,7 @@ document.addEventListener("click", async event => {
             `;
         }
 
-        applyAppointmentFilters();
+        window.applyAppointmentFilters?.();
     } catch (error) {
         console.error(error);
         showToast(error.message || "Randevu silinirken hata oluştu.");
