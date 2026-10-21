@@ -1,3 +1,16 @@
+// Public gallery image lightbox
+window.openImage = function (src) {
+  const modalElement = document.getElementById("imageModal");
+  const modalImage = document.getElementById("modalImage");
+
+  if (!modalElement || !modalImage || !src || !window.bootstrap?.Modal) {
+    return;
+  }
+
+  modalImage.src = src;
+  window.bootstrap.Modal.getOrCreateInstance(modalElement).show();
+};
+
 // Attach the session CSRF token to all state-changing fetch requests.
 (() => {
   const csrfMeta = document.querySelector('meta[name="csrf-token"]');
