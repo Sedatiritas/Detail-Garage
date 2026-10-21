@@ -130,16 +130,18 @@
             <section id="dashboard" class="panel-section active-section">
 
                 <%
-    // Bugünün tarihi
+    // Türkiye saatine göre tarih ve ay
     const today = new Date().toLocaleDateString("sv-SE", {
         timeZone: "Europe/Istanbul"
     });
-
     const currentMonth = today.slice(0, 7);
 
-    // Bugünkü randevular
+    // Bugünkü ve bu ayki randevular
     const todayAppointments = appointments.filter(
         appointment => appointment.date === today
+    );
+    const monthlyAppointments = appointments.filter(
+        appointment => appointment.date && appointment.date.startsWith(currentMonth)
     );
 
     // Bekleyen randevular
@@ -147,27 +149,25 @@
         appointment => appointment.status === "pending"
     );
 
-    // Bu ay tamamlanan     mler
-    const monthlyCompleted = appointments.filter(
-        appointment =>
-            appointment.date.startsWith(currentMonth) &&
-            appointment.status === "completed"
+    // Bu ay tamamlanan işlemler
+    const monthlyCompleted = monthlyAppointments.filter(
+        appointment => appointment.status === "completed"
     );
 
-    // Bugünkü hizmet dağılımı
+    // Tamamlanan işlemlerin hizmet dağılımı
     const serviceCounts = {};
-
-    todayAppointments.forEach(appointment => {
+    monthlyCompleted.forEach(appointment => {
         serviceCounts[appointment.service] =
             (serviceCounts[appointment.service] || 0) + 1;
     });
 
-    const serviceList = [
-        "Profesyonel Oto Yıkama",
-        "Pasta Cila",
-        "İç Detailing",
-        "Seramik & Koruma"
-    ];
+    // Hizmet isimleri ve güncel fiyatları veritabanındaki hizmetlerden alınır
+    const serviceList = services.map(service => service.name);
+    monthlyCompleted.forEach(appointment => {
+        if (!serviceList.includes(appointment.service)) {
+            serviceList.push(appointment.service);
+        }
+    });
 
     const serviceIcons = {
         "Profesyonel Oto Yıkama": "bi-droplet-half",
@@ -177,21 +177,31 @@
     };
 
     const maxServiceCount = Math.max(
-        ...serviceList.map(
-            service => serviceCounts[service] || 0
-        ),
+        ...serviceList.map(service => serviceCounts[service] || 0),
         1
     );
+
+    // Tahmini ciro: bu ay tamamlanan işlemler x hizmetin mevcut fiyatı
+    const monthlyRevenue = monthlyCompleted.reduce((total, appointment) => {
+        const matchingService = services.find(service => service.name === appointment.service);
+        return total + (matchingService ? Number(matchingService.price) || 0 : 0);
+    }, 0);
+
+    const formatCurrency = amount => new Intl.NumberFormat("tr-TR", {
+        style: "currency",
+        currency: "TRY",
+        maximumFractionDigits: 0
+    }).format(amount);
 
     // Son 4 randevu
     const recentAppointments = appointments.slice(0, 4);
 
-    // Türkçe tarih
-    const formattedToday = new Date(
-        `${today}T00:00:00`
+    // Türkçe ay etiketi
+    const formattedMonth = new Date(
+        `${currentMonth}-01T00:00:00`
     ).toLocaleDateString("tr-TR", {
-        day: "numeric",
         month: "long",
+        year: "numeric",
         timeZone: "Europe/Istanbul"
     });
 %>
@@ -466,106 +476,59 @@
                         </div>
 
 
-                        <!-- BUGÜNÜN İŞLEM ÖZETİ -->
+                        <!-- AYLIK İŞLEM ÖZETİ -->
                         <div class="col-xl-4">
-
                             <div class="panel-card h-100">
-
                                 <div class="panel-header">
-
                                     <div>
-
-                                        <span class="section-mini-title">
-                                            BUGÜN
-                                        </span>
-
-                                        <h2>
-                                            İşlem özeti
-                                        </h2>
-
+                                        <span class="section-mini-title">AYLIK ÖZET</span>
+                                        <h2>İşlem özeti</h2>
                                     </div>
-
-                                    <span class="date-chip">
-                                        <%= formattedToday %>
-                                    </span>
-
+                                    <span class="date-chip"><%= formattedMonth %></span>
                                 </div>
-
 
                                 <div class="progress-list">
-
-
-                                    <% if (todayAppointments.length===0) { %>
-
+                                    <% if (monthlyCompleted.length === 0) { %>
                                         <div class="text-center py-4 text-secondary small">
-                                            Bugün için henüz randevu yok.
+                                            Bu ay henüz tamamlanmış işlem yok.
                                         </div>
-
-                                        <% } else { %>
-
-
-                                            <% serviceList.forEach(service=> { %>
-
-                                                <% const count=serviceCounts[service] || 0; const percentage=Math.round(
-                                                    (count / maxServiceCount) * 100 ); %>
-
-
-                                                    <div class="progress-item">
-
-                                                        <div class="d-flex justify-content-between mb-2">
-
-                                                            <span>
-                                                                <%= service %>
-                                                            </span>
-
-                                                            <strong>
-                                                                <%= count %> araç
-                                                            </strong>
-
-                                                        </div>
-
-                                                        <div class="progress-track">
-
-                                                            <span style="<%= `width: ${percentage}%;` %>"></span>
-
-                                                        </div>
-
-                                                    </div>
-
-
-                                                    <% }) %>
-
-
-                                                        <% } %>
-
+                                    <% } else { %>
+                                        <% serviceList.forEach(service => {
+                                            const count = serviceCounts[service] || 0;
+                                            const percentage = Math.round((count / maxServiceCount) * 100);
+                                        %>
+                                            <div class="progress-item">
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span><%= service %></span>
+                                                    <strong><%= count %> araç</strong>
+                                                </div>
+                                                <div class="progress-track">
+                                                    <span style="<%= `width: ${percentage}%;` %>"></span>
+                                                </div>
+                                            </div>
+                                        <% }) %>
+                                    <% } %>
                                 </div>
 
-
-                                <!-- GÜNLÜK DURUM -->
+                                <!-- AYLIK TAHMİNİ CİRO -->
                                 <div class="daily-note mt-4">
-
-                                    <i class="bi bi-calendar-check-fill"></i>
-
+                                    <i class="bi bi-cash-stack"></i>
                                     <div>
-
-                                        <strong>
-                                            Bugünün planı
-                                        </strong>
-
-                                        <span>
-                                            Toplam
-                                            <%= todayAppointments.length %>
-                                                randevu bulunuyor.
-                                        </span>
-
+                                        <strong>Aylık tahmini ciro</strong>
+                                        <span><%= formatCurrency(monthlyRevenue) %></span>
                                     </div>
-
                                 </div>
 
+                                <!-- AYLIK İŞLEM SAYILARI -->
+                                <div class="daily-note mt-3">
+                                    <i class="bi bi-calendar-check-fill"></i>
+                                    <div>
+                                        <strong>Aylık yapılan işlemler</strong>
+                                        <span><%= monthlyCompleted.length %> tamamlanan işlem · <%= monthlyAppointments.length %> toplam randevu</span>
+                                    </div>
+                                </div>
                             </div>
-
                         </div>
-
                     </div>
 
             </section>
