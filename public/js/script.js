@@ -1112,6 +1112,62 @@ document
 
     });
 
+/* İŞLETME LOGOSU */
+
+const businessLogoFile = document.getElementById("businessLogoFile");
+const businessLogoPreview = document.getElementById("businessLogoPreview");
+const uploadBusinessLogoBtn = document.getElementById("uploadBusinessLogoBtn");
+
+businessLogoFile?.addEventListener("change", () => {
+    const file = businessLogoFile.files?.[0];
+    if (!file || !businessLogoPreview) return;
+
+    const previewUrl = URL.createObjectURL(file);
+    businessLogoPreview.src = previewUrl;
+    businessLogoPreview.onload = () => URL.revokeObjectURL(previewUrl);
+});
+
+uploadBusinessLogoBtn?.addEventListener("click", async () => {
+    const file = businessLogoFile?.files?.[0];
+
+    if (!file) {
+        showToast("Önce bir logo dosyası seçin.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("logo", file);
+
+    uploadBusinessLogoBtn.disabled = true;
+
+    try {
+        const response = await fetch("/settings/logo", {
+            method: "POST",
+            body: formData
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Logo yüklenemedi.");
+        }
+
+        if (businessLogoPreview) {
+            businessLogoPreview.src = data.logoUrl;
+        }
+
+        const favicon = document.querySelector('link[rel="icon"]');
+        if (favicon) favicon.href = data.logoUrl;
+
+        businessLogoFile.value = "";
+        showToast(data.message || "Logo başarıyla güncellendi.");
+    } catch (error) {
+        console.error(error);
+        showToast(error.message || "Logo yüklenirken bir hata oluştu.");
+    } finally {
+        uploadBusinessLogoBtn.disabled = false;
+    }
+});
+
 /* GALERİ */
 
 const galleryUploadForm =
