@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Aktif nav linkini bölüm bazlı güncelle
-  const sections = [...new Set(document.querySelectorAll('main section, #home, #beforeAfter'))];
+  const sections = [...new Set(document.querySelectorAll('main section, #home, #beforeAfter, #contact'))];
   const sectionObserver = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
@@ -550,6 +550,71 @@ if (adminAppointmentForm) {
         );
     }
 }
+
+/* Randevu işlem menülerini tablo kapsayıcısının dışına taşı; kırpılmalarını önle. */
+(() => {
+  const menuOrigins = new Map();
+
+  document.addEventListener("show.bs.dropdown", event => {
+    const dropdown = event.target;
+    const menu = dropdown.querySelector(".appointment-menu");
+    if (!menu) return;
+
+    menuOrigins.set(dropdown, {
+      parent: menu.parentElement,
+      nextSibling: menu.nextSibling,
+      toggle: dropdown.querySelector('[data-bs-toggle="dropdown"]')
+    });
+    document.body.appendChild(menu);
+    menu.style.setProperty("position", "fixed", "important");
+    menu.style.setProperty("z-index", "1090", "important");
+    menu.style.setProperty("margin", "0", "important");
+    menu.style.setProperty("inset", "auto", "important");
+  });
+
+  document.addEventListener("shown.bs.dropdown", event => {
+    const dropdown = event.target;
+    const origin = menuOrigins.get(dropdown);
+    if (!origin || !origin.toggle) return;
+
+    const menu = document.body.querySelector(".appointment-menu.show");
+    if (!menu) return;
+
+    const buttonRect = origin.toggle.getBoundingClientRect();
+    const menuRect = menu.getBoundingClientRect();
+    const gap = 6;
+    const spaceBelow = window.innerHeight - buttonRect.bottom;
+    const openAbove = spaceBelow < menuRect.height + gap && buttonRect.top > menuRect.height + gap;
+    const top = openAbove
+      ? buttonRect.top - menuRect.height - gap
+      : Math.min(buttonRect.bottom + gap, window.innerHeight - menuRect.height - gap);
+    const left = Math.max(gap, Math.min(
+      buttonRect.right - menuRect.width,
+      window.innerWidth - menuRect.width - gap
+    ));
+
+    menu.style.setProperty("top", `${Math.max(gap, top)}px`, "important");
+    menu.style.setProperty("left", `${left}px`, "important");
+    menu.style.setProperty("transform", "none", "important");
+  });
+
+  document.addEventListener("hidden.bs.dropdown", event => {
+    const dropdown = event.target;
+    const origin = menuOrigins.get(dropdown);
+    if (!origin) return;
+
+    const menu = document.body.querySelector(".appointment-menu");
+    if (menu && origin.parent) {
+      if (origin.nextSibling && origin.nextSibling.parentNode === origin.parent) {
+        origin.parent.insertBefore(menu, origin.nextSibling);
+      } else {
+        origin.parent.appendChild(menu);
+      }
+      menu.removeAttribute("style");
+    }
+    menuOrigins.delete(dropdown);
+  });
+})();
 
 /* Randevu durum değişiklikleri — dinamik satırlar için event delegation */
 
