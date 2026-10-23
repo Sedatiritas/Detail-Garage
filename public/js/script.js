@@ -69,21 +69,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Aktif nav linkini bölüm bazlı güncelle
-  const sections = [...new Set(document.querySelectorAll('main section, #home, #beforeAfter, #contact'))];
-  const sectionObserver = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      const sectionId = entry.target.id;
-      // Before / After için ayrı menü bağlantısı olmadığından Galeri aktif kalır.
-      const activeId = sectionId === 'beforeAfter' ? 'gallery' : sectionId;
-      navLinks.forEach(link => {
-        link.classList.toggle('active', link.getAttribute('href') === `#${activeId}`);
-      });
-    });
-  }, { rootMargin: '-35% 0px -55% 0px', threshold: 0 });
+  // Aktif menüyü kaydırma konumuna göre güncelle; sayfa sonundayken İletişim aktif olur.
+  const sections = [...new Set(document.querySelectorAll('main section, #home, #beforeAfter, #contact'))]
+    .filter(section => section.id);
 
-  sections.forEach(section => sectionObserver.observe(section));
+  const updateActiveNavLink = () => {
+    const atPageBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 8;
+    let activeId = atPageBottom ? 'contact' : 'home';
+    if (!atPageBottom) {
+      const marker = window.innerHeight * 0.38;
+      sections.forEach(section => {
+        if (section.getBoundingClientRect().top <= marker) {
+          activeId = section.id === 'beforeAfter' ? 'gallery' : section.id;
+        }
+      });
+    }
+    navLinks.forEach(link => {
+      link.classList.toggle('active', link.getAttribute('href') === `#${activeId}`);
+    });
+  };
+
+  updateActiveNavLink();
+  window.addEventListener('scroll', updateActiveNavLink, { passive: true });
+  window.addEventListener('resize', updateActiveNavLink);
 
   // Scroll reveal: ekrana giren elementleri göster
   const revealElements = document.querySelectorAll('.reveal');
@@ -551,72 +559,6 @@ if (adminAppointmentForm) {
     }
 }
 
-/* Randevu işlem menülerini tablo kapsayıcısının dışına taşı; kırpılmalarını önle. */
-(() => {
-  const menuOrigins = new Map();
-
-  document.addEventListener("show.bs.dropdown", event => {
-    const dropdown = event.target;
-    const menu = dropdown.querySelector(".appointment-menu");
-    if (!menu) return;
-
-    menuOrigins.set(dropdown, {
-      menu,
-      parent: menu.parentElement,
-      nextSibling: menu.nextSibling,
-      toggle: dropdown.querySelector('[data-bs-toggle="dropdown"]')
-    });
-    document.body.appendChild(menu);
-    menu.style.setProperty("position", "fixed", "important");
-    menu.style.setProperty("z-index", "1090", "important");
-    menu.style.setProperty("margin", "0", "important");
-    menu.style.setProperty("inset", "auto", "important");
-  });
-
-  document.addEventListener("shown.bs.dropdown", event => {
-    const dropdown = event.target;
-    const origin = menuOrigins.get(dropdown);
-    if (!origin || !origin.toggle) return;
-
-    const menu = document.body.querySelector(".appointment-menu.show");
-    if (!menu) return;
-
-    const buttonRect = origin.toggle.getBoundingClientRect();
-    const menuRect = menu.getBoundingClientRect();
-    const gap = 6;
-    const spaceBelow = window.innerHeight - buttonRect.bottom;
-    const openAbove = spaceBelow < menuRect.height + gap && buttonRect.top > menuRect.height + gap;
-    const top = openAbove
-      ? buttonRect.top - menuRect.height - gap
-      : Math.min(buttonRect.bottom + gap, window.innerHeight - menuRect.height - gap);
-    const left = Math.max(gap, Math.min(
-      buttonRect.right - menuRect.width,
-      window.innerWidth - menuRect.width - gap
-    ));
-
-    menu.style.setProperty("top", `${Math.max(gap, top)}px`, "important");
-    menu.style.setProperty("left", `${left}px`, "important");
-    menu.style.setProperty("transform", "none", "important");
-  });
-
-  document.addEventListener("hidden.bs.dropdown", event => {
-    const dropdown = event.target;
-    const origin = menuOrigins.get(dropdown);
-    if (!origin) return;
-
-    const menu = origin.menu;
-    if (menu && origin.parent) {
-      if (origin.nextSibling && origin.nextSibling.parentNode === origin.parent) {
-        origin.parent.insertBefore(menu, origin.nextSibling);
-      } else {
-        origin.parent.appendChild(menu);
-      }
-      menu.removeAttribute("style");
-    }
-    menuOrigins.delete(dropdown);
-  });
-})();
-
 /* Randevu durum değişiklikleri — dinamik satırlar için event delegation */
 
 document.addEventListener("click", async event => {
@@ -696,7 +638,7 @@ function createAppointmentRow(appointment) {
         <td><span class="badge-soft ${status.className}">${status.text}</span></td>
         <td class="text-end">
             <div class="d-inline-flex align-items-center gap-2">
-                <div class="dropdown">
+                <div class="dropdown dropup">
                     <button class="table-action" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="İşlemler">
                         <i class="bi bi-three-dots"></i>
                     </button>
