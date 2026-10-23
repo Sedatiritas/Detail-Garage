@@ -559,6 +559,49 @@ if (adminAppointmentForm) {
     }
 }
 
+/* Randevu işlem menülerini tablo scroll alanının dışına alarak tam göster. */
+(() => {
+  const menuOrigins = new Map();
+  document.addEventListener("shown.bs.dropdown", event => {
+    const toggle = event.target.closest('[data-bs-toggle="dropdown"]');
+    const dropdown = toggle?.closest(".dropdown");
+    const menu = dropdown?.querySelector(".appointment-menu");
+    if (!toggle || !dropdown || !menu || menuOrigins.has(dropdown)) return;
+    const origin = { menu, parent: menu.parentElement, nextSibling: menu.nextSibling, toggle };
+    menuOrigins.set(dropdown, origin);
+    document.body.appendChild(menu);
+    menu.classList.add("show");
+    menu.style.setProperty("position", "fixed", "important");
+    menu.style.setProperty("display", "block", "important");
+    menu.style.setProperty("z-index", "2000", "important");
+    menu.style.setProperty("margin", "0", "important");
+    menu.style.setProperty("transform", "none", "important");
+    menu.style.setProperty("inset", "auto", "important");
+    const buttonRect = toggle.getBoundingClientRect();
+    const menuRect = menu.getBoundingClientRect();
+    const gap = 6;
+    const openAbove = window.innerHeight - buttonRect.bottom < menuRect.height + gap;
+    const rawTop = openAbove ? buttonRect.top - menuRect.height - gap : buttonRect.bottom + gap;
+    const top = Math.max(gap, Math.min(rawTop, window.innerHeight - menuRect.height - gap));
+    const left = Math.max(gap, Math.min(buttonRect.right - menuRect.width, window.innerWidth - menuRect.width - gap));
+    menu.style.setProperty("top", top + "px", "important");
+    menu.style.setProperty("left", left + "px", "important");
+  });
+  document.addEventListener("hidden.bs.dropdown", event => {
+    const toggle = event.target.closest('[data-bs-toggle="dropdown"]');
+    const dropdown = toggle?.closest(".dropdown");
+    const origin = dropdown && menuOrigins.get(dropdown);
+    if (!origin) return;
+    const { menu, parent, nextSibling } = origin;
+    menu.classList.remove("show");
+    menu.removeAttribute("style");
+    if (parent) {
+      if (nextSibling && nextSibling.parentNode === parent) parent.insertBefore(menu, nextSibling);
+      else parent.appendChild(menu);
+    }
+    menuOrigins.delete(dropdown);
+  });
+})();
 /* Randevu durum değişiklikleri — dinamik satırlar için event delegation */
 
 document.addEventListener("click", async event => {
