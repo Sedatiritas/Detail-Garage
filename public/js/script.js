@@ -561,6 +561,7 @@ if (adminAppointmentForm) {
     if (!menu) return;
 
     menuOrigins.set(dropdown, {
+      menu,
       parent: menu.parentElement,
       nextSibling: menu.nextSibling,
       toggle: dropdown.querySelector('[data-bs-toggle="dropdown"]')
@@ -603,7 +604,7 @@ if (adminAppointmentForm) {
     const origin = menuOrigins.get(dropdown);
     if (!origin) return;
 
-    const menu = document.body.querySelector(".appointment-menu");
+    const menu = origin.menu;
     if (menu && origin.parent) {
       if (origin.nextSibling && origin.nextSibling.parentNode === origin.parent) {
         origin.parent.insertBefore(menu, origin.nextSibling);
