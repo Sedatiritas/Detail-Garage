@@ -124,14 +124,24 @@ const handleUpload = (req, res, next) => {
 // ========================================
 
 const deleteFile = filePath => {
-
-    if (
-        filePath &&
-        fs.existsSync(filePath)
-    ) {
+    if (filePath && fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
     }
+};
 
+// Yalnızca bu özelliğin kendi uploads klasöründeki dosyaları hedefle.
+const getBeforeAfterFilePath = imageUrl => {
+    if (typeof imageUrl !== "string") return null;
+
+    const cleanUrl = imageUrl.split("?")[0].split("#")[0];
+    const prefix = "/uploads/before-after/";
+
+    if (!cleanUrl.startsWith(prefix)) return null;
+
+    const filename = cleanUrl.slice(prefix.length);
+    if (!filename || path.basename(filename) !== filename) return null;
+
+    return path.join(uploadDir, filename);
 };
 
 
@@ -276,51 +286,36 @@ router.put(
 
 
             if (beforeFile) {
-
-                const oldBeforePath =
-                    path.join(
-                        __dirname,
-                        "..",
-                        "public",
-                        oldBeforeImage
-                    );
-
-                if (
-                    oldBeforeImage &&
-                    fs.existsSync(oldBeforePath)
-                ) {
-                    deleteFile(oldBeforePath);
-                }
-
                 beforeAfter.beforeImageUrl =
                     `/uploads/before-after/${beforeFile.filename}`;
             }
 
-
             if (afterFile) {
-
-                const oldAfterPath =
-                    path.join(
-                        __dirname,
-                        "..",
-                        "public",
-                        oldAfterImage
-                    );
-
-                if (
-                    oldAfterImage &&
-                    fs.existsSync(oldAfterPath)
-                ) {
-                    deleteFile(oldAfterPath);
-                }
-
                 beforeAfter.afterImageUrl =
                     `/uploads/before-after/${afterFile.filename}`;
             }
 
-
+            // Önce yeni adresleri veritabanına kaydet; kayıt başarılı olduktan
+            // sonra değiştirilen eski dosyaları diskten kaldır.
             await beforeAfter.save();
 
+            if (beforeFile && oldBeforeImage !== beforeAfter.beforeImageUrl) {
+                const oldBeforePath = getBeforeAfterFilePath(oldBeforeImage);
+                const newBeforePath = getBeforeAfterFilePath(beforeAfter.beforeImageUrl);
+
+                if (oldBeforePath && oldBeforePath !== newBeforePath) {
+                    deleteFile(oldBeforePath);
+                }
+            }
+
+            if (afterFile && oldAfterImage !== beforeAfter.afterImageUrl) {
+                const oldAfterPath = getBeforeAfterFilePath(oldAfterImage);
+                const newAfterPath = getBeforeAfterFilePath(beforeAfter.afterImageUrl);
+
+                if (oldAfterPath && oldAfterPath !== newAfterPath) {
+                    deleteFile(oldAfterPath);
+                }
+            }
 
             res.json({
 
