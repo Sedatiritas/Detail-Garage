@@ -12,13 +12,16 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 82px;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 body {
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--text);
   background: #fff;
-  overflow-x: hidden;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 img {
@@ -1953,51 +1956,70 @@ body.login-page .login-message.error {
   }
 }
 
-/* =========================================================
-   HERO SLIDER RESPONSIVE ADJUSTMENTS
-   ========================================================= */
+/* HERO SLIDER: responsive layout without horizontal overflow */
+.hero-section,
+#heroCarousel,
+#heroCarousel .carousel-inner,
+#heroCarousel .carousel-item {
+  max-width: 100%;
+}
+
+#heroCarousel {
+  overflow: hidden;
+}
+
+#heroCarousel .carousel-item {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+#heroCarousel .carousel-item > .container {
+  box-sizing: border-box;
+  min-width: 0;
+}
 
 #heroCarousel .hero-content {
   width: 100%;
-  max-width: 700px;
+  max-width: 680px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 #heroCarousel .hero-content h1.display-2 {
-  font-size: clamp(2.4rem, 3.7vw, 4rem);
+  font-size: clamp(2.25rem, 3.5vw, 3.8rem);
   line-height: 1.06;
-  margin-bottom: 1.25rem !important;
+  letter-spacing: -.035em;
 }
 
 #heroCarousel .hero-copy {
-  max-width: 580px;
-  font-size: clamp(0.95rem, 1.1vw, 1.1rem);
+  max-width: 560px;
+  font-size: clamp(.95rem, 1.05vw, 1.08rem);
   line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+#heroCarousel .hero-content .btn {
+  white-space: normal;
 }
 
 #heroCarousel .carousel-control-prev,
 #heroCarousel .carousel-control-next {
-  width: 9%;
-  min-width: 58px;
-}
-
-@media (min-width: 768px) {
-  #heroCarousel .hero-content {
-    max-width: min(700px, calc(100% - 130px));
-  }
+  width: 7%;
+  min-width: 48px;
 }
 
 @media (min-width: 768px) and (max-width: 1199.98px) {
+  #heroCarousel .hero-content {
+    max-width: calc(100% - 112px);
+  }
+
   #heroCarousel .hero-content h1.display-2 {
-    font-size: clamp(2.25rem, 3.5vw, 3.25rem);
+    font-size: clamp(2.15rem, 3.4vw, 3.15rem);
   }
 
   #heroCarousel .hero-copy {
-    max-width: 500px;
-  }
-
-  #heroCarousel .hero-content .btn {
-    font-size: 0.9rem;
-    padding: 0.65rem 1rem !important;
+    max-width: 480px;
   }
 }
 
@@ -2008,43 +2030,53 @@ body.login-page .login-message.error {
   }
 
   #heroCarousel,
-  #heroCarousel .carousel-inner,
-  #heroCarousel .carousel-item {
+  #heroCarousel .carousel-inner {
     height: auto !important;
   }
 
   #heroCarousel .carousel-item {
-    min-height: 590px;
-    padding: 3.5rem 0 5rem;
+    height: auto !important;
+    min-height: 560px;
+    padding: 5rem 0 5.5rem;
   }
 
   #heroCarousel .carousel-item > .container {
-    min-height: 490px;
+    width: 100%;
+    max-width: 100%;
+    min-height: 430px;
     height: auto !important;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
     align-items: center;
   }
 
   #heroCarousel .hero-content {
+    width: 100%;
     max-width: 100%;
-    padding: 0.75rem 0 1rem;
+    padding: 0;
   }
 
   #heroCarousel .hero-content h1.display-2 {
-    font-size: clamp(2rem, 7.5vw, 3rem);
+    font-size: clamp(1.9rem, 7.2vw, 2.8rem);
     line-height: 1.08;
     margin-bottom: 1rem !important;
   }
 
   #heroCarousel .hero-copy {
     max-width: 100%;
-    font-size: 0.95rem;
+    font-size: .95rem;
     line-height: 1.5;
     margin-bottom: 1.25rem !important;
   }
 
+  #heroCarousel .hero-content > .d-flex {
+    max-width: 100%;
+  }
+
   #heroCarousel .hero-content .btn {
-    font-size: 0.875rem;
-    padding: 0.65rem 0.95rem !important;
+    max-width: 100%;
+    font-size: .85rem;
+    padding: .65rem .9rem !important;
   }
 
   #heroCarousel .carousel-control-prev,
@@ -2053,20 +2085,40 @@ body.login-page .login-message.error {
   }
 
   #heroCarousel .carousel-indicators {
-    bottom: 3.25rem;
+    bottom: 3.5rem;
+    margin-right: 1rem;
+    margin-left: 1rem;
   }
 
   .hero-bottom-bar {
-    bottom: 0.5rem;
+    bottom: .5rem;
+    max-width: 100%;
+  }
+
+  .hero-bottom-bar .container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center !important;
+    gap: .5rem;
+    font-size: .68rem;
   }
 }
 
 @media (max-width: 380px) {
   #heroCarousel .carousel-item {
-    min-height: 620px;
+    min-height: 590px;
   }
 
   #heroCarousel .hero-content h1.display-2 {
-    font-size: 1.85rem;
+    font-size: 1.8rem;
+  }
+
+  #heroCarousel .hero-content .btn {
+    font-size: .78rem;
+    padding: .6rem .7rem !important;
   }
 }
