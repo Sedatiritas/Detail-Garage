@@ -919,10 +919,15 @@
         <!-- BEFORE / AFTER -->
         <!-- ======================================== -->
 
-        <% if (beforeAfter && beforeAfter.beforeImageUrl &&
-            beforeAfter.afterImageUrl) { %>
+        <%
+            // Veritabanındaki görsel adresleri boşsa depoda bulunan varsayılan görselleri kullan.
+            const beforeImageUrl = (beforeAfter && beforeAfter.beforeImageUrl) ||
+                "/uploads/before-after/before-after-1790541918697-267383780.png";
+            const afterImageUrl = (beforeAfter && beforeAfter.afterImageUrl) ||
+                "/uploads/before-after/before-after-1790541918701-776458010.png";
+        %>
 
-            <section id="beforeAfter" class="py-5 overflow-hidden">
+        <section id="beforeAfter" class="py-5 overflow-hidden">
 
                 <div class="container">
 
@@ -962,7 +967,7 @@
                                 <!-- AFTER -->
 
                                 <img
-                                    src="<%= beforeAfter.afterImageUrl %>"
+                                    src="<%= afterImageUrl %>"
                                     alt="İşlem sonrası"
                                     class="before-after-image w-100 d-block"
                                     draggable="false">
@@ -974,7 +979,7 @@
                                     class="before-after-before position-absolute top-0 start-0 h-100 overflow-hidden">
 
                                     <img
-                                        src="<%= beforeAfter.beforeImageUrl %>"
+                                        src="<%= beforeImageUrl %>"
                                         alt="İşlem öncesi"
                                         class="before-after-image position-absolute top-0 start-0 h-100"
                                         draggable="false">
@@ -1019,9 +1024,7 @@
 
                 </div>
 
-            </section>
-
-        <% } %>
+        </section>
 
         <!-- APPOINTMENT + MAP -->
         <section id="appointment" class="py-5 booking-section section-padding overflow-hidden">
