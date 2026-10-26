@@ -38,6 +38,41 @@ window.openImage = function (src) {
   };
 })();
 
+// Index randevu telefonu: harf/sembol tuşlarını girişten önce engelle.
+document.addEventListener("DOMContentLoaded", () => {
+    const phoneInput = document.getElementById("phone");
+    if (!phoneInput) return;
+
+    const sanitize = value => value.replace(/[^0-9]/g, "").slice(0, 11);
+
+    phoneInput.addEventListener("keydown", event => {
+        if (event.ctrlKey || event.metaKey || event.altKey || event.key.length !== 1) return;
+        if (!/^[0-9]$/.test(event.key)) {
+            event.preventDefault();
+            return;
+        }
+        const selectedLength = phoneInput.selectionEnd - phoneInput.selectionStart;
+        if (phoneInput.value.length - selectedLength >= 11) event.preventDefault();
+    });
+
+    phoneInput.addEventListener("beforeinput", event => {
+        if (event.data && /[^0-9]/.test(event.data) && event.inputType.startsWith("insert")) {
+            event.preventDefault();
+        }
+    });
+
+    phoneInput.addEventListener("input", () => {
+        const cleanValue = sanitize(phoneInput.value);
+        if (phoneInput.value !== cleanValue) phoneInput.value = cleanValue;
+    });
+
+    phoneInput.addEventListener("paste", event => {
+        event.preventDefault();
+        phoneInput.value = sanitize(event.clipboardData?.getData("text") || "");
+        phoneInput.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   if (document.body.classList.contains('admin-page')) return;  const navbar = document.getElementById('mainNavbar');
   const navLinks = document.querySelectorAll('.navbar .nav-link');
@@ -773,54 +808,6 @@ async function refreshAppointmentsTable() {
         console.error("Randevu listesi yenilenemedi:", error);
     }
 }
-
-
-/* Telefon alanı: yalnızca rakam ve en fazla 11 hane */
-(() => {
-    const phoneInput = document.getElementById("phone");
-    if (!phoneInput) return;
-
-    const keepDigits = value => value.replace(/\D/g, "").slice(0, 11);
-
-    // Harf/sembol tuşlarını girişten önce engelle.
-    phoneInput.addEventListener("keydown", event => {
-        if (
-            event.ctrlKey || event.metaKey || event.altKey ||
-            event.key.length !== 1
-        ) return;
-
-        if (!/^[0-9]$/.test(event.key)) {
-            event.preventDefault();
-            return;
-        }
-
-        const selectionLength = phoneInput.selectionEnd - phoneInput.selectionStart;
-        if (phoneInput.value.length - selectionLength >= 11) {
-            event.preventDefault();
-        }
-    });
-
-    // Mobil klavye, otomatik doldurma ve diğer giriş yolları için ek kontrol.
-    phoneInput.addEventListener("beforeinput", event => {
-        if (event.data && /[^0-9]/.test(event.data) && event.inputType.startsWith("insert")) {
-            event.preventDefault();
-        }
-    });
-
-    phoneInput.addEventListener("input", () => {
-        const digitsOnly = keepDigits(phoneInput.value);
-        if (phoneInput.value !== digitsOnly) {
-            phoneInput.value = digitsOnly;
-        }
-    });
-
-    phoneInput.addEventListener("paste", event => {
-        event.preventDefault();
-        const pastedText = event.clipboardData?.getData("text") || "";
-        phoneInput.value = keepDigits(pastedText);
-        phoneInput.dispatchEvent(new Event("input", { bubbles: true }));
-    });
-})();
 
 
 /* Yeni randevu formu */
