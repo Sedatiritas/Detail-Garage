@@ -780,8 +780,35 @@ async function refreshAppointmentsTable() {
     const phoneInput = document.getElementById("phone");
     if (!phoneInput) return;
 
+    const keepDigits = value => value.replace(/\D/g, "").slice(0, 11);
+
+    // Harf/sembol tuşlarını girişten önce engelle.
+    phoneInput.addEventListener("keydown", event => {
+        if (
+            event.ctrlKey || event.metaKey || event.altKey ||
+            event.key.length !== 1
+        ) return;
+
+        if (!/^[0-9]$/.test(event.key)) {
+            event.preventDefault();
+            return;
+        }
+
+        const selectionLength = phoneInput.selectionEnd - phoneInput.selectionStart;
+        if (phoneInput.value.length - selectionLength >= 11) {
+            event.preventDefault();
+        }
+    });
+
+    // Mobil klavye, otomatik doldurma ve diğer giriş yolları için ek kontrol.
+    phoneInput.addEventListener("beforeinput", event => {
+        if (event.data && /[^0-9]/.test(event.data) && event.inputType.startsWith("insert")) {
+            event.preventDefault();
+        }
+    });
+
     phoneInput.addEventListener("input", () => {
-        const digitsOnly = phoneInput.value.replace(/\D/g, "").slice(0, 11);
+        const digitsOnly = keepDigits(phoneInput.value);
         if (phoneInput.value !== digitsOnly) {
             phoneInput.value = digitsOnly;
         }
@@ -790,7 +817,7 @@ async function refreshAppointmentsTable() {
     phoneInput.addEventListener("paste", event => {
         event.preventDefault();
         const pastedText = event.clipboardData?.getData("text") || "";
-        phoneInput.value = pastedText.replace(/\D/g, "").slice(0, 11);
+        phoneInput.value = keepDigits(pastedText);
         phoneInput.dispatchEvent(new Event("input", { bubbles: true }));
     });
 })();
