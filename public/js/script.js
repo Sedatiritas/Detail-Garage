@@ -1277,6 +1277,116 @@ uploadBusinessLogoBtn?.addEventListener("click", async () => {
     }
 });
 
+/* ÖNCESİ / SONRASI */
+
+const beforeAfterForm = document.getElementById("beforeAfterForm");
+
+if (beforeAfterForm) {
+    const beforeInput = document.getElementById("beforeImage");
+    const afterInput = document.getElementById("afterImage");
+    const beforePreview = document.getElementById("beforeImagePreview");
+    const afterPreview = document.getElementById("afterImagePreview");
+    const status = document.getElementById("beforeAfterStatus");
+    const saveButton = document.getElementById("beforeAfterSaveBtn");
+
+    const fallbackBeforeImage = "/uploads/before-after/before-after-1790541918697-267383780.png";
+    const fallbackAfterImage = "/uploads/before-after/before-after-1790541918701-776458010.png";
+
+    const renderPreview = (container, src, alt) => {
+        if (!container || !src) return;
+        container.innerHTML = "";
+        const image = document.createElement("img");
+        image.src = src;
+        image.alt = alt;
+        image.className = "w-100 h-100";
+        image.style.objectFit = "cover";
+        image.onerror = () => {
+            container.innerHTML = '<div class="h-100 d-flex align-items-center justify-content-center text-secondary small">Görsel yüklenemedi</div>';
+        };
+        container.appendChild(image);
+    };
+
+    const loadBeforeAfter = async () => {
+        try {
+            const response = await fetch("/before-after", { cache: "no-store" });
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Mevcut görseller alınamadı.");
+            }
+
+            renderPreview(beforePreview, data.beforeAfter?.beforeImageUrl || fallbackBeforeImage, "İşlem öncesi görsel");
+            renderPreview(afterPreview, data.beforeAfter?.afterImageUrl || fallbackAfterImage, "İşlem sonrası görsel");
+            if (status) status.textContent = "Mevcut görseller yüklendi. Değiştirmek istediğiniz fotoğrafı seçebilirsiniz.";
+        } catch (error) {
+            console.error("Before/After görselleri yüklenemedi:", error);
+            if (status) status.textContent = "Mevcut görseller yüklenemedi. Fotoğrafları seçip tekrar deneyin.";
+        }
+    };
+
+    beforeInput?.addEventListener("change", () => {
+        const file = beforeInput.files?.[0];
+        if (file) renderPreview(beforePreview, URL.createObjectURL(file), "Seçilen işlem öncesi görsel");
+    });
+
+    afterInput?.addEventListener("change", () => {
+        const file = afterInput.files?.[0];
+        if (file) renderPreview(afterPreview, URL.createObjectURL(file), "Seçilen işlem sonrası görsel");
+    });
+
+    beforeAfterForm.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        const beforeFile = beforeInput?.files?.[0];
+        const afterFile = afterInput?.files?.[0];
+
+        if (!beforeFile && !afterFile) {
+            showToast("Lütfen değiştirmek istediğiniz en az bir fotoğrafı seçin.");
+            return;
+        }
+
+        const formData = new FormData();
+        if (beforeFile) formData.append("beforeImage", beforeFile);
+        if (afterFile) formData.append("afterImage", afterFile);
+
+        const originalButtonHtml = saveButton?.innerHTML;
+        if (saveButton) {
+            saveButton.disabled = true;
+            saveButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span> Kaydediliyor...';
+        }
+        if (status) status.textContent = "Fotoğraflar yükleniyor...";
+
+        try {
+            const response = await fetch("/before-after", {
+                method: "PUT",
+                body: formData
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Before / After fotoğrafları kaydedilemedi.");
+            }
+
+            renderPreview(beforePreview, data.beforeAfter?.beforeImageUrl || fallbackBeforeImage, "İşlem öncesi görsel");
+            renderPreview(afterPreview, data.beforeAfter?.afterImageUrl || fallbackAfterImage, "İşlem sonrası görsel");
+            beforeAfterForm.reset();
+
+            if (status) status.textContent = "Fotoğraflar başarıyla kaydedildi.";
+            showToast(data.message || "Before / After fotoğrafları başarıyla kaydedildi.");
+        } catch (error) {
+            console.error("Before/After kaydetme hatası:", error);
+            if (status) status.textContent = error.message || "Fotoğraflar kaydedilemedi.";
+            showToast(error.message || "Fotoğraflar yüklenirken bir hata oluştu.");
+        } finally {
+            if (saveButton) {
+                saveButton.disabled = false;
+                saveButton.innerHTML = originalButtonHtml || '<i class="bi bi-check2 me-1"></i> Before / After kaydet';
+            }
+        }
+    });
+
+    loadBeforeAfter();
+}
+
 /* GALERİ */
 
 const galleryUploadForm =
