@@ -124,8 +124,13 @@ const handleUpload = (req, res, next) => {
 // ========================================
 
 const deleteFile = filePath => {
-    if (filePath && fs.existsSync(filePath)) {
+    if (!filePath || !fs.existsSync(filePath)) return;
+
+    try {
         fs.unlinkSync(filePath);
+    } catch (error) {
+        // Dosya temizliği başarısız olsa bile kayıtlı yeni görselleri bozma.
+        console.warn("Before/After eski görseli silinemedi:", error.message);
     }
 };
 
