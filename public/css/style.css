@@ -274,6 +274,20 @@ img {
 .drag-slider {
   cursor: grab;
   touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+.drag-slider * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.drag-slider img,
+.drag-slider a,
+.drag-slider button {
+  -webkit-user-drag: none;
 }
 
 .drag-slider.dragging {
