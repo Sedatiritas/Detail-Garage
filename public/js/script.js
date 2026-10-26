@@ -775,6 +775,27 @@ async function refreshAppointmentsTable() {
 }
 
 
+/* Telefon alanı: yalnızca rakam ve en fazla 11 hane */
+(() => {
+    const phoneInput = document.getElementById("phone");
+    if (!phoneInput) return;
+
+    phoneInput.addEventListener("input", () => {
+        const digitsOnly = phoneInput.value.replace(/\\D/g, "").slice(0, 11);
+        if (phoneInput.value !== digitsOnly) {
+            phoneInput.value = digitsOnly;
+        }
+    });
+
+    phoneInput.addEventListener("paste", event => {
+        event.preventDefault();
+        const pastedText = event.clipboardData?.getData("text") || "";
+        phoneInput.value = pastedText.replace(/\\D/g, "").slice(0, 11);
+        phoneInput.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+})();
+
+
 /* Yeni randevu formu */
 
 document.getElementById("appointmentForm")?.addEventListener("submit", async event => {
