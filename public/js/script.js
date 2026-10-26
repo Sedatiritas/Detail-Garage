@@ -781,7 +781,7 @@ async function refreshAppointmentsTable() {
     if (!phoneInput) return;
 
     phoneInput.addEventListener("input", () => {
-        const digitsOnly = phoneInput.value.replace(/\\D/g, "").slice(0, 11);
+        const digitsOnly = phoneInput.value.replace(/\D/g, "").slice(0, 11);
         if (phoneInput.value !== digitsOnly) {
             phoneInput.value = digitsOnly;
         }
@@ -790,7 +790,7 @@ async function refreshAppointmentsTable() {
     phoneInput.addEventListener("paste", event => {
         event.preventDefault();
         const pastedText = event.clipboardData?.getData("text") || "";
-        phoneInput.value = pastedText.replace(/\\D/g, "").slice(0, 11);
+        phoneInput.value = pastedText.replace(/\D/g, "").slice(0, 11);
         phoneInput.dispatchEvent(new Event("input", { bubbles: true }));
     });
 })();
