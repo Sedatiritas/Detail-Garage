@@ -896,11 +896,11 @@ function renderAppointmentCalendar(appointments) {
 }
 if (calendarRoot) {
     document.getElementById("calendarPrev")?.addEventListener("click", () => {
-        if (calendarView==="month") calendarCursor.setMonth(calendarCursor.getMonth()-1); else calendarCursor.setDate(calendarCursor.getDate()-7);
+        if (calendarView==="month") calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth()-1, 1); else calendarCursor.setDate(calendarCursor.getDate()-7);
         renderAppointmentCalendar(calendarAppointments);
     });
     document.getElementById("calendarNext")?.addEventListener("click", () => {
-        if (calendarView==="month") calendarCursor.setMonth(calendarCursor.getMonth()+1); else calendarCursor.setDate(calendarCursor.getDate()+7);
+        if (calendarView==="month") calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth()+1, 1); else calendarCursor.setDate(calendarCursor.getDate()+7);
         renderAppointmentCalendar(calendarAppointments);
     });
     document.getElementById("calendarToday")?.addEventListener("click", () => {
