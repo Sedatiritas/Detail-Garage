@@ -1141,6 +1141,13 @@
                                         placeholder="Eklemek istediğiniz bir detay varsa yazabilirsiniz.">
                                 </div>
 
+                                <!-- KVKK AYDINLATMA METNİ -->
+                                <p class="col-12 small text-secondary mb-0">
+                                    Randevu talebiniz kapsamında kişisel verilerinizin işlenmesi hakkında
+                                    <a href="#kvkkAydinlatmaModal" class="text-decoration-underline" data-bs-toggle="modal"
+                                        data-bs-target="#kvkkAydinlatmaModal">KVKK Aydınlatma Metni</a>'ni inceleyebilirsiniz.
+                                </p>
+
                                 <!-- GÖNDER -->
                                 <button type="submit" id="appointmentSubmitBtn" data-cooldown-remaining="<%= appointmentCooldownRemainingMs || 0 %>"
                                     class="btn btn-dark rounded-pill px-4 py-3" <%=businessSettings.appointmentsOpen
@@ -1344,6 +1351,25 @@
         </div>
     </footer>
 
+
+    <!-- KVKK AYDINLATMA MODAL -->
+    <div class="modal fade" id="kvkkAydinlatmaModal" tabindex="-1"
+        aria-labelledby="kvkkAydinlatmaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="kvkkAydinlatmaModalLabel">KVKK Aydınlatma Metni</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body">
+                    <%- include("partials/kvkk-aydinlatma") %>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dark rounded-pill px-4" data-bs-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- IMAGE MODAL -->
     <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
