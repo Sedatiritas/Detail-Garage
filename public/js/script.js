@@ -670,6 +670,10 @@ document.addEventListener("click", async event => {
         badge.className = `badge-soft ${statusInfo.className}`;
         row.dataset.status = newStatus;
         applyAppointmentFilters();
+
+        // Durum değişince takvimi de anında güncel verilerle eşitle.
+        await refreshAppointmentsTable();
+
         showToast("Randevu durumu güncellendi.");
     } catch (error) {
         console.error(error);
