@@ -296,6 +296,7 @@ const titles = {
     slider: "Ana Sayfa Slider",
     about: "Hakkımızda",
     appointments: "Randevular",
+    "appointment-calendar": "Randevu Takvimi",
     services: "Hizmetler",
     gallery: "Galeri",
     settings: "İşletme Ayarları"
@@ -772,6 +773,7 @@ async function refreshAppointmentsTable() {
 
         const data = await response.json();
         if (!data.success || !Array.isArray(data.appointments)) return;
+        renderAppointmentCalendar(data.appointments);
 
         const emptyRow = appointmentTableBody.querySelector("tr:not([data-appointment-id])");
         const serverIds = new Set(data.appointments.map(item => String(item._id)));
@@ -807,6 +809,115 @@ async function refreshAppointmentsTable() {
     } catch (error) {
         console.error("Randevu listesi yenilenemedi:", error);
     }
+}
+
+
+
+/* Randevu takvimi: mevcut randevu API'sini kullanır. */
+const calendarRoot = document.getElementById("appointmentCalendar");
+const calendarHeading = document.getElementById("calendarHeading");
+const calendarDayHeading = document.getElementById("calendarDayHeading");
+const calendarDayAppointments = document.getElementById("calendarDayAppointments");
+let calendarView = "month";
+let calendarCursor = new Date();
+calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth(), calendarCursor.getDate());
+let calendarAppointments = [];
+let selectedCalendarDate = calendarDateKey(new Date());
+function calendarDateKey(date) {
+    return [date.getFullYear(), String(date.getMonth()+1).padStart(2,"0"), String(date.getDate()).padStart(2,"0")].join("-");
+}
+function parseCalendarDate(value) {
+    const parts = String(value || "").split("-");
+    if (parts.length !== 3 || parts.some(part => !/^\d+$/.test(part))) return null;
+    return new Date(Number(parts[0]), Number(parts[1])-1, Number(parts[2]));
+}
+function calendarStatus(status) {
+    return ["pending","rejected","confirmed","completed"].includes(status) ? status : "pending";
+}
+function calendarStatusLabel(status) {
+    return ({pending:"Bekliyor",rejected:"Reddedildi",confirmed:"Onaylandı",completed:"Tamamlandı"})[status] || "Bekliyor";
+}
+function calendarEscape(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[character]));
+}
+function calendarItemsForDay(key) {
+    return calendarAppointments.filter(item => item.date === key).sort((a,b) => String(a.time || "").localeCompare(String(b.time || "")));
+}
+function renderCalendarDayDetails(key) {
+    if (!calendarDayAppointments || !calendarDayHeading) return;
+    const date = parseCalendarDate(key);
+    calendarDayHeading.textContent = date ? date.toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long",year:"numeric"}) : "Günün randevuları";
+    const items = calendarItemsForDay(key);
+    if (!items.length) {
+        calendarDayAppointments.innerHTML = '<p class="text-secondary mb-0">Bu gün için randevu bulunmuyor.</p>';
+        return;
+    }
+    calendarDayAppointments.innerHTML = items.map(item => {
+        const status = calendarStatus(item.status);
+        const badge = status === "rejected" ? "badge-danger" : status === "pending" ? "badge-warning" : "badge-success";
+        return `<div class="calendar-day-appointment is-${status}">
+            <div><strong>${calendarEscape(item.time || "Saat belirtilmedi")} · ${calendarEscape(item.name || "İsimsiz müşteri")}</strong>
+            <small>${calendarEscape(item.service || "Hizmet belirtilmedi")} · ${calendarEscape(item.vehicle || "Araç belirtilmedi")}</small>
+            ${item.phone ? `<small class="d-block">${calendarEscape(item.phone)}</small>` : ""}</div>
+            <span class="badge-soft ${badge}">${calendarStatusLabel(status)}</span></div>`;
+    }).join("");
+}
+function renderAppointmentCalendar(appointments) {
+    if (!calendarRoot) return;
+    calendarAppointments = Array.isArray(appointments) ? appointments : [];
+    const months = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+    const weekdays = ["Pzt","Sal","Çar","Per","Cum","Cmt","Paz"];
+    const first = new Date(calendarCursor.getFullYear(),calendarCursor.getMonth(),1);
+    const start = calendarView === "month" ? new Date(first) : new Date(calendarCursor);
+    start.setDate(start.getDate() - ((start.getDay()+6)%7));
+    const count = calendarView === "month" ? 42 : 7;
+    const last = new Date(start); last.setDate(last.getDate()+count-1);
+    calendarHeading.textContent = calendarView === "month"
+        ? `${months[calendarCursor.getMonth()]} ${calendarCursor.getFullYear()}`
+        : `${start.toLocaleDateString("tr-TR",{day:"numeric",month:"short"})} – ${last.toLocaleDateString("tr-TR",{day:"numeric",month:"short",year:"numeric"})}`;
+    document.querySelectorAll("[data-calendar-view]").forEach(button => button.classList.toggle("active",button.dataset.calendarView===calendarView));
+    const todayKey = calendarDateKey(new Date());
+    let markup = weekdays.map(day => `<div class="calendar-weekday">${day}</div>`).join("");
+    for (let i=0;i<count;i++) {
+        const date = new Date(start); date.setDate(start.getDate()+i);
+        const key = calendarDateKey(date);
+        const items = calendarItemsForDay(key);
+        const classes = ["calendar-day"];
+        if (calendarView==="month" && date.getMonth()!==calendarCursor.getMonth()) classes.push("is-outside");
+        if (key===todayKey) classes.push("is-today");
+        if (key===selectedCalendarDate) classes.push("is-selected");
+        markup += `<div class="${classes.join(" ")}" data-calendar-date="${key}" role="button" tabindex="0" aria-label="${date.toLocaleDateString("tr-TR")} randevuları">
+            <span class="calendar-day-number">${date.getDate()}</span>
+            ${items.slice(0,3).map(item => { const status=calendarStatus(item.status); return `<button type="button" class="calendar-event is-${status}" title="${calendarEscape(item.time)} · ${calendarEscape(item.name)} · ${calendarEscape(item.service)}">${calendarEscape(item.time || "")} ${calendarEscape(item.name || "Randevu")}</button>`; }).join("")}
+            ${items.length>3 ? `<div class="calendar-more">+${items.length-3} randevu</div>` : ""}</div>`;
+    }
+    calendarRoot.innerHTML = markup;
+    renderCalendarDayDetails(selectedCalendarDate);
+}
+if (calendarRoot) {
+    document.getElementById("calendarPrev")?.addEventListener("click", () => {
+        if (calendarView==="month") calendarCursor.setMonth(calendarCursor.getMonth()-1); else calendarCursor.setDate(calendarCursor.getDate()-7);
+        renderAppointmentCalendar(calendarAppointments);
+    });
+    document.getElementById("calendarNext")?.addEventListener("click", () => {
+        if (calendarView==="month") calendarCursor.setMonth(calendarCursor.getMonth()+1); else calendarCursor.setDate(calendarCursor.getDate()+7);
+        renderAppointmentCalendar(calendarAppointments);
+    });
+    document.getElementById("calendarToday")?.addEventListener("click", () => {
+        calendarCursor = new Date(); selectedCalendarDate = calendarDateKey(calendarCursor); renderAppointmentCalendar(calendarAppointments);
+    });
+    document.querySelectorAll("[data-calendar-view]").forEach(button => button.addEventListener("click", () => {
+        calendarView=button.dataset.calendarView; renderAppointmentCalendar(calendarAppointments);
+    }));
+    calendarRoot.addEventListener("click", event => {
+        const day = event.target.closest("[data-calendar-date]");
+        if (day) { selectedCalendarDate=day.dataset.calendarDate; renderAppointmentCalendar(calendarAppointments); }
+    });
+    calendarRoot.addEventListener("keydown", event => {
+        if ((event.key==="Enter" || event.key===" ") && event.target.matches("[data-calendar-date]")) {
+            event.preventDefault(); selectedCalendarDate=event.target.dataset.calendarDate; renderAppointmentCalendar(calendarAppointments);
+        }
+    });
 }
 
 
