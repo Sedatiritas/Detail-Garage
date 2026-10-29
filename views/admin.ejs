@@ -52,6 +52,10 @@
                 <i class="bi bi-calendar-check-fill"></i>
                 <span>Randevular</span>
             </a>
+            <a class="nav-item" href="#appointment-calendar">
+                <i class="bi bi-calendar3"></i>
+                <span>Randevu Takvimi</span>
+            </a>
             <a class="nav-item" href="#services">
                 <i class="bi bi-stars"></i>
                 <span>Hizmetler</span>
@@ -531,6 +535,37 @@
 
     
 
+
+
+            <!-- Yeni özellik: mevcut randevu ekranından bağımsız takvim -->
+            <section id="appointment-calendar" class="panel-section">
+                <div class="section-toolbar calendar-toolbar">
+                    <div><span class="section-mini-title">PLANLAMA</span><h2>Randevu Takvimi</h2><p class="text-secondary mb-0">Randevuları tarih ve durumlarına göre görüntüle.</p></div>
+                    <div class="calendar-view-switch btn-group" role="group" aria-label="Takvim görünümü">
+                        <button type="button" class="btn btn-outline-secondary active" data-calendar-view="month">Ay</button>
+                        <button type="button" class="btn btn-outline-secondary" data-calendar-view="week">Hafta</button>
+                    </div>
+                </div>
+                <div class="panel-card appointment-calendar-card">
+                    <div class="appointment-calendar-controls">
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-light calendar-nav-btn" id="calendarPrev" aria-label="Önceki dönem"><i class="bi bi-chevron-left"></i></button>
+                            <button type="button" class="btn btn-light calendar-nav-btn" id="calendarNext" aria-label="Sonraki dönem"><i class="bi bi-chevron-right"></i></button>
+                            <button type="button" class="btn btn-outline-secondary" id="calendarToday">Bugün</button>
+                        </div>
+                        <h3 id="calendarHeading" class="calendar-heading mb-0" aria-live="polite"></h3>
+                    </div>
+                    <div class="calendar-legend" aria-label="Randevu durumları">
+                        <span><i class="calendar-legend-dot is-pending"></i>Bekleyen</span><span><i class="calendar-legend-dot is-rejected"></i>Reddedilen</span><span><i class="calendar-legend-dot is-confirmed"></i>Onaylanan</span><span><i class="calendar-legend-dot is-completed"></i>Tamamlanan</span>
+                    </div>
+                    <div id="appointmentCalendar" class="appointment-calendar" aria-live="polite"><div class="calendar-loading">Takvim yükleniyor...</div></div>
+                    <p class="calendar-footnote mb-0"><i class="bi bi-arrow-repeat me-1"></i>Randevular otomatik olarak güncellenir.</p>
+                </div>
+                <div class="panel-card calendar-detail-card mt-4">
+                    <div class="panel-header"><div><span class="section-mini-title">SEÇİLİ GÜN</span><h2 id="calendarDayHeading">Günün randevuları</h2></div></div>
+                    <div id="calendarDayAppointments" class="calendar-day-appointments"><p class="text-secondary mb-0">Takvimden bir gün seç.</p></div>
+                </div>
+            </section>
 
             <!-- APPOINTMENTS -->
             <section id="appointments" class="panel-section">
