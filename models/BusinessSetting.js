@@ -76,6 +76,28 @@ const businessSettingSchema = new mongoose.Schema(
             type: Boolean,
             default: true
         },
+        appointmentInterval: {
+            type: Number,
+            enum: [30, 60, 90],
+            default: 60
+        },
+        workingHours: {
+            type: [{
+                day: { type: String, required: true },
+                enabled: { type: Boolean, default: true },
+                start: { type: String, default: "09:00" },
+                end: { type: String, default: "18:00" }
+            }],
+            default: () => [
+                { day: "monday", enabled: true, start: "09:00", end: "18:00" },
+                { day: "tuesday", enabled: true, start: "09:00", end: "18:00" },
+                { day: "wednesday", enabled: true, start: "09:00", end: "18:00" },
+                { day: "thursday", enabled: true, start: "09:00", end: "18:00" },
+                { day: "friday", enabled: true, start: "09:00", end: "18:00" },
+                { day: "saturday", enabled: true, start: "09:00", end: "18:00" },
+                { day: "sunday", enabled: true, start: "09:00", end: "18:00" }
+            ]
+        },
     },
     {
         timestamps: true
