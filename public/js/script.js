@@ -154,10 +154,6 @@ const timeInput = document.getElementById("time");
 
 if (dateInput && timeInput) {
 
-    const allTimes = [...timeInput.options]
-        .map(option => option.value)
-        .filter(Boolean);
-
     dateInput.addEventListener("change", async () => {
 
         if (!dateInput.value) return;
@@ -177,7 +173,7 @@ if (dateInput && timeInput) {
             timeInput.innerHTML =
                 '<option value="">Saat seçin</option>';
 
-            allTimes
+            (data.availableTimes || [])
                 .filter(time => !bookedTimes.includes(time))
                 .forEach(time => {
                     timeInput.insertAdjacentHTML(
@@ -1264,6 +1260,28 @@ document
         const appointmentsOpen =
             document.getElementById("appointmentsOpen");
 
+        const workingHours = [
+            "monday", "tuesday", "wednesday", "thursday",
+            "friday", "saturday", "sunday"
+        ].map(day => ({
+            day,
+            enabled: document.getElementById(`workingHours-${day}-enabled`)?.checked ?? true,
+            start: document.getElementById(`workingHours-${day}-start`)?.value || "09:00",
+            end: document.getElementById(`workingHours-${day}-end`)?.value || "18:00"
+        }));
+
+        const appointmentInterval =
+            Number(document.getElementById("appointmentInterval")?.value || 60);
+
+        const invalidWorkingHours = workingHours.some(day =>
+            day.enabled && day.end < day.start
+        );
+
+        if (invalidWorkingHours) {
+            showToast("Kapanış saati açılış saatinden önce olamaz.");
+            return;
+        }
+
         if (!mapUrl) return;
 
 
@@ -1328,7 +1346,9 @@ document
                         mapUrl:
                             mapValue,
                         appointmentsOpen:
-                            appointmentsOpen?.checked ?? true
+                            appointmentsOpen?.checked ?? true,
+                        workingHours,
+                        appointmentInterval
                     })
 
                 });
@@ -1370,6 +1390,15 @@ document
         }
 
     });
+
+/* ÇALIŞMA SAATLERİ GÜN AÇ/KAPAT */
+document.querySelectorAll(".working-day-enabled").forEach(toggle => {
+    toggle.addEventListener("change", () => {
+        const day = toggle.dataset.day;
+        document.getElementById(`workingHours-${day}-start`).disabled = !toggle.checked;
+        document.getElementById(`workingHours-${day}-end`).disabled = !toggle.checked;
+    });
+});
 
 /* İŞLETME LOGOSU */
 
