@@ -2697,6 +2697,25 @@ if (appointmentSubmitBtn) {
         }, 3000);
     }
 
+    if (params.get("error") === "invalid-time") {
+        appointmentSubmitBtn.classList.remove("btn-dark");
+        appointmentSubmitBtn.classList.add("btn-warning");
+
+        appointmentSubmitBtn.innerHTML = `
+            <i class="bi bi-exclamation-circle me-1"></i>
+            Seçtiğiniz saat çalışma saatleri dışında
+        `;
+
+        setTimeout(() => {
+            appointmentSubmitBtn.classList.remove("btn-warning");
+            appointmentSubmitBtn.classList.add("btn-dark");
+            appointmentSubmitBtn.innerHTML = `
+                Randevu Talebi Gönder
+                <i class="bi bi-arrow-right ms-1"></i>
+            `;
+        }, 3500);
+    }
+
     if (params.get("error") === "server") {
         appointmentSubmitBtn.classList.remove("btn-dark");
         appointmentSubmitBtn.classList.add("btn-danger");
