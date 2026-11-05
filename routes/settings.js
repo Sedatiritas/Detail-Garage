@@ -172,7 +172,7 @@ router.put("/", adminAuth, async (req, res) => {
 
             const validTime = value =>
                 typeof value === "string" &&
-                /^([01]\\d|2[0-3]):[0-5]\\d$/.test(value);
+                /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
 
             if (
                 workingHours.length !== 7 ||
