@@ -294,7 +294,7 @@ router.patch(
                         status
                     },
                     {
-                        new: true
+                        returnDocument: "after"
                     }
                 );
 
