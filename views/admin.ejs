@@ -1985,82 +1985,7 @@
 
                     </div>
 
-                    <%
-    const workingDayLabels = [
-        { key: "monday", label: "Pazartesi" },
-        { key: "tuesday", label: "Salı" },
-        { key: "wednesday", label: "Çarşamba" },
-        { key: "thursday", label: "Perşembe" },
-        { key: "friday", label: "Cuma" },
-        { key: "saturday", label: "Cumartesi" },
-        { key: "sunday", label: "Pazar" }
-    ];
-    const defaultWorkingHours = workingDayLabels.map(day => ({
-        day: day.key, enabled: true, start: "09:00", end: "18:00"
-    }));
-    const currentWorkingHours = businessSettings.workingHours?.length
-        ? businessSettings.workingHours
-        : defaultWorkingHours;
-%>
-<div class="panel-card mb-4">
-    <div class="panel-header mb-3">
-        <div>
-            <span class="section-mini-title">ÇALIŞMA TAKVİMİ</span>
-            <h2>Randevu çalışma saatleri</h2>
-            <p class="text-secondary small mb-0">Her gün için çalışma aralığını ve kapalı günleri belirleyin.</p>
-        </div>
-    </div>
 
-    <div class="d-flex flex-column gap-3">
-        <% workingDayLabels.forEach(day => {
-            const hours = currentWorkingHours.find(item => item.day === day.key) || {
-                enabled: true, start: "09:00", end: "18:00"
-            };
-        %>
-            <div class="row align-items-center g-2">
-                <div class="col-12 col-md-4">
-                    <div class="form-check">
-                        <input class="form-check-input working-day-enabled" type="checkbox"
-                            id="workingHours-<%= day.key %>-enabled" data-day="<%= day.key %>"
-                            <%= hours.enabled ? "checked" : "" %>>
-                        <label class="form-check-label fw-semibold" for="workingHours-<%= day.key %>-enabled">
-                            <%= day.label %>
-                        </label>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4">
-                    <label class="form-label small mb-1" for="workingHours-<%= day.key %>-start">Açılış</label>
-                    <input type="time" class="form-control working-day-start"
-                        id="workingHours-<%= day.key %>-start" data-day="<%= day.key %>"
-                        value="<%= hours.start %>" <%= hours.enabled ? "" : "disabled" %>>
-                </div>
-                <div class="col-6 col-md-4">
-                    <label class="form-label small mb-1" for="workingHours-<%= day.key %>-end">Kapanış</label>
-                    <input type="time" class="form-control working-day-end"
-                        id="workingHours-<%= day.key %>-end" data-day="<%= day.key %>"
-                        value="<%= hours.end %>" <%= hours.enabled ? "" : "disabled" %>>
-                </div>
-            </div>
-        <% }) %>
-    </div>
-
-    <hr class="my-4">
-
-    <div class="row align-items-center g-3">
-        <div class="col-md-7">
-            <label for="appointmentInterval" class="form-label fw-semibold">Randevu aralığı</label>
-            <div class="text-secondary small">Randevu seçenekleri kaç dakikada bir oluşturulsun?</div>
-        </div>
-        <div class="col-md-5">
-            <select id="appointmentInterval" class="form-select">
-                <option value="30" <%= Number(businessSettings.appointmentInterval || 60) === 30 ? "selected" : "" %>>30 dakika</option>
-                <option value="60" <%= Number(businessSettings.appointmentInterval || 60) === 60 ? "selected" : "" %>>60 dakika</option>
-                <option value="90" <%= Number(businessSettings.appointmentInterval || 60) === 90 ? "selected" : "" %>>90 dakika</option>
-            </select>
-        </div>
-    </div>
-    <small class="text-secondary d-block mt-3">Kapanış saati de mevcut sistemdeki gibi son randevu başlangıç saati olarak seçeneklere dahil edilir.</small>
-</div>
 
                 </div>
 
@@ -2172,6 +2097,85 @@
         </button>
 
     </div>
+
+
+                    <%
+    const workingDayLabels = [
+        { key: "monday", label: "Pazartesi" },
+        { key: "tuesday", label: "Salı" },
+        { key: "wednesday", label: "Çarşamba" },
+        { key: "thursday", label: "Perşembe" },
+        { key: "friday", label: "Cuma" },
+        { key: "saturday", label: "Cumartesi" },
+        { key: "sunday", label: "Pazar" }
+    ];
+    const defaultWorkingHours = workingDayLabels.map(day => ({
+        day: day.key, enabled: true, start: "09:00", end: "18:00"
+    }));
+    const currentWorkingHours = businessSettings.workingHours?.length
+        ? businessSettings.workingHours
+        : defaultWorkingHours;
+%>
+<div class="panel-card mb-4">
+    <div class="panel-header mb-3">
+        <div>
+            <span class="section-mini-title">ÇALIŞMA TAKVİMİ</span>
+            <h2>Randevu çalışma saatleri</h2>
+            <p class="text-secondary small mb-0">Her gün için çalışma aralığını ve kapalı günleri belirleyin.</p>
+        </div>
+    </div>
+
+    <div class="d-flex flex-column gap-3">
+        <% workingDayLabels.forEach(day => {
+            const hours = currentWorkingHours.find(item => item.day === day.key) || {
+                enabled: true, start: "09:00", end: "18:00"
+            };
+        %>
+            <div class="row align-items-center g-2">
+                <div class="col-12 col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input working-day-enabled" type="checkbox"
+                            id="workingHours-<%= day.key %>-enabled" data-day="<%= day.key %>"
+                            <%= hours.enabled ? "checked" : "" %>>
+                        <label class="form-check-label fw-semibold" for="workingHours-<%= day.key %>-enabled">
+                            <%= day.label %>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <label class="form-label small mb-1" for="workingHours-<%= day.key %>-start">Açılış</label>
+                    <input type="time" class="form-control working-day-start"
+                        id="workingHours-<%= day.key %>-start" data-day="<%= day.key %>"
+                        value="<%= hours.start %>" <%= hours.enabled ? "" : "disabled" %>>
+                </div>
+                <div class="col-6 col-md-4">
+                    <label class="form-label small mb-1" for="workingHours-<%= day.key %>-end">Kapanış</label>
+                    <input type="time" class="form-control working-day-end"
+                        id="workingHours-<%= day.key %>-end" data-day="<%= day.key %>"
+                        value="<%= hours.end %>" <%= hours.enabled ? "" : "disabled" %>>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+
+    <hr class="my-4">
+
+    <div class="row align-items-center g-3">
+        <div class="col-md-7">
+            <label for="appointmentInterval" class="form-label fw-semibold">Randevu aralığı</label>
+            <div class="text-secondary small">Randevu seçenekleri kaç dakikada bir oluşturulsun?</div>
+        </div>
+        <div class="col-md-5">
+            <select id="appointmentInterval" class="form-select">
+                <option value="30" <%= Number(businessSettings.appointmentInterval || 60) === 30 ? "selected" : "" %>>30 dakika</option>
+                <option value="60" <%= Number(businessSettings.appointmentInterval || 60) === 60 ? "selected" : "" %>>60 dakika</option>
+                <option value="90" <%= Number(businessSettings.appointmentInterval || 60) === 90 ? "selected" : "" %>>90 dakika</option>
+            </select>
+        </div>
+    </div>
+    <small class="text-secondary d-block mt-3">Kapanış saati de mevcut sistemdeki gibi son randevu başlangıç saati olarak seçeneklere dahil edilir.</small>
+</div>
+
 
 
     <div class="row g-4">
