@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 
 const Appointment = require("../models/Appointment");
+const BusinessSetting = require("../models/BusinessSetting");
+const { getAvailableWorkingTimes } = require("../utils/appointmentSchedule");
 const adminAuth = require("../middleware/adminAuth");
 
 const {
@@ -34,6 +36,13 @@ router.post("/", async (req, res) => {
             message
         } = req.body;
 
+
+        const businessSettings = await BusinessSetting.findOne();
+        const availableWorkingTimes = getAvailableWorkingTimes(date, businessSettings);
+
+        if (!availableWorkingTimes.includes(time)) {
+            return res.redirect("/?error=invalid-time#appointment");
+        }
 
         // Aynı tarih ve saat dolu mu?
         const existingAppointment =
@@ -184,6 +193,9 @@ router.get("/availability", async (req, res) => {
         }
 
 
+        const businessSettings = await BusinessSetting.findOne();
+        const availableTimes = getAvailableWorkingTimes(date, businessSettings);
+
         const appointments =
             await Appointment.find({
 
@@ -210,6 +222,8 @@ router.get("/availability", async (req, res) => {
         res.json({
 
             success: true,
+
+            availableTimes,
 
             bookedTimes
 
