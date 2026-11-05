@@ -119,7 +119,9 @@ router.put("/", adminAuth, async (req, res) => {
             tiktokUrl,
             whatsappUrl,
             mapUrl,
-            appointmentsOpen
+            appointmentsOpen,
+            workingHours,
+            appointmentInterval
         } = req.body;
 
         let settings = await BusinessSetting.findOne();
@@ -158,8 +160,50 @@ router.put("/", adminAuth, async (req, res) => {
         settings.mapUrl =
             mapUrl?.trim() || settings.mapUrl;
 
-        settings.appointmentsOpen =
-            appointmentsOpen ?? true;
+        if (typeof appointmentsOpen === "boolean") {
+            settings.appointmentsOpen = appointmentsOpen;
+        }
+
+        if (Array.isArray(workingHours)) {
+            const allowedDays = [
+                "monday", "tuesday", "wednesday", "thursday",
+                "friday", "saturday", "sunday"
+            ];
+
+            const validTime = value =>
+                typeof value === "string" &&
+                /^([01]\\d|2[0-3]):[0-5]\\d$/.test(value);
+
+            if (
+                workingHours.length !== 7 ||
+                workingHours.some(day =>
+                    !allowedDays.includes(day.day) ||
+                    typeof day.enabled !== "boolean" ||
+                    !validTime(day.start) ||
+                    !validTime(day.end) ||
+                    day.end < day.start
+                ) ||
+                new Set(workingHours.map(day => day.day)).size !== 7
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Çalışma saatleri bilgileri geçersiz."
+                });
+            }
+
+            settings.workingHours = workingHours;
+        }
+
+        if (appointmentInterval !== undefined) {
+            const interval = Number(appointmentInterval);
+            if (![30, 60, 90].includes(interval)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Randevu aralığı geçersiz."
+                });
+            }
+            settings.appointmentInterval = interval;
+        }
 
         await settings.save();
 
